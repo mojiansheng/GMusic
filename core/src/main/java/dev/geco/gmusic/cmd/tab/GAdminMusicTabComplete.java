@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GAMusicTabComplete implements TabCompleter {
+public class GAdminMusicTabComplete implements TabCompleter {
 
     private final GMusicMain gMusicMain;
 
-    public GAMusicTabComplete(GMusicMain gMusicMain) {
+    public GAdminMusicTabComplete(GMusicMain gMusicMain) {
         this.gMusicMain = gMusicMain;
     }
 

@@ -2,11 +2,11 @@ package dev.geco.gmusic;
 
 import dev.geco.gmusic.api.event.GMusicLoadedEvent;
 import dev.geco.gmusic.api.event.GMusicReloadEvent;
-import dev.geco.gmusic.cmd.GAMusicCommand;
+import dev.geco.gmusic.cmd.GAdminMusicCommand;
 import dev.geco.gmusic.cmd.GMusicCommand;
 import dev.geco.gmusic.cmd.GMusicReloadCommand;
 import dev.geco.gmusic.cmd.tab.EmptyTabComplete;
-import dev.geco.gmusic.cmd.tab.GAMusicTabComplete;
+import dev.geco.gmusic.cmd.tab.GAdminMusicTabComplete;
 import dev.geco.gmusic.cmd.tab.GMusicTabComplete;
 import dev.geco.gmusic.event.JukeBoxEventHandler;
 import dev.geco.gmusic.event.PlayerEventHandler;
@@ -38,7 +38,7 @@ import java.util.Map;
 public class GMusicMain extends JavaPlugin {
 
     public static final String NAME = "GMusic";
-    public static final String RESOURCE_ID = "000000";
+    public static final String RESOURCE_ID = "84004";
 
     private final int BSTATS_RESOURCE_ID = 4925;
     private static GMusicMain gMusicMain;
@@ -58,12 +58,14 @@ public class GMusicMain extends JavaPlugin {
     private NBSConverter nbsConverter;
     private EnvironmentUtil environmentUtil;
     private SteroNoteUtil steroNoteUtil;
-    private boolean supportsPaperFeature = false;
+    private BStatsMetric bStatsMetric;
     private boolean supportsTaskFeature = false;
+    private boolean isPaperServer = false;
+    private boolean isFoliaServer = false;
 
     public static GMusicMain getInstance() { return gMusicMain; }
 
-    public VersionService getVersionManager() { return versionService; }
+    public VersionService getVersionService() { return versionService; }
 
     public ConfigService getConfigService() { return configService; }
 
@@ -95,9 +97,11 @@ public class GMusicMain extends JavaPlugin {
 
     public SteroNoteUtil getSteroNoteUtil() { return steroNoteUtil; }
 
-    public boolean supportsPaperFeature() { return supportsPaperFeature; }
-
     public boolean supportsTaskFeature() { return supportsTaskFeature; }
+
+    public boolean isPaperServer() { return isPaperServer; }
+
+    public boolean isFoliaServer() { return isFoliaServer; }
 
     public void onLoad() {
         gMusicMain = this;
@@ -123,7 +127,7 @@ public class GMusicMain extends JavaPlugin {
 
         loadFeatures();
 
-        messageService = supportsPaperFeature && versionService.isNewerOrVersion(18, 2) ? new PaperMessageService(this) : new SpigotMessageService(this);
+        messageService = isPaperServer && versionService.isNewerOrVersion(1, 18, 2) ? new PaperMessageService(this) : new SpigotMessageService(this);
     }
 
     public void onEnable() {
@@ -146,14 +150,15 @@ public class GMusicMain extends JavaPlugin {
 
     public void onDisable() {
         unload();
+        if(bStatsMetric != null) bStatsMetric.shutdown();
         messageService.sendMessage(Bukkit.getConsoleSender(), "Plugin.plugin-disabled");
     }
 
     private void loadSettings(CommandSender sender) {
         if(!connectDatabase(sender)) return;
         songService.loadSongs();
-        playSettingsService.createTables();
-        jukeBoxService.createTables();
+        playSettingsService.createDataTables();
+        jukeBoxService.createDataTables();
         jukeBoxService.loadJukeboxes(null);
         if(configService.R_ACTIVE) radioService.startRadio();
     }
@@ -186,9 +191,9 @@ public class GMusicMain extends JavaPlugin {
         getCommand("gmusic").setExecutor(new GMusicCommand(this));
         getCommand("gmusic").setTabCompleter(new GMusicTabComplete(this));
         getCommand("gmusic").setPermissionMessage(messageService.getMessage("Messages.command-permission-error"));
-        getCommand("gamusic").setExecutor(new GAMusicCommand(this));
-        getCommand("gamusic").setTabCompleter(new GAMusicTabComplete(this));
-        getCommand("gamusic").setPermissionMessage(messageService.getMessage("Messages.command-permission-error"));
+        getCommand("gadminmusic").setExecutor(new GAdminMusicCommand(this));
+        getCommand("gadminmusic").setTabCompleter(new GAdminMusicTabComplete(this));
+        getCommand("gadminmusic").setPermissionMessage(messageService.getMessage("Messages.command-permission-error"));
         getCommand("gmusicreload").setExecutor(new GMusicReloadCommand(this));
         getCommand("gmusicreload").setTabCompleter(new EmptyTabComplete());
         getCommand("gmusicreload").setPermissionMessage(messageService.getMessage("Messages.command-permission-error"));
@@ -200,8 +205,8 @@ public class GMusicMain extends JavaPlugin {
     }
 
     private boolean versionCheck() {
-        if(versionService.isNewerOrVersion(18, 0) && versionService.isAvailable()) return true;
-        messageService.sendMessage(Bukkit.getConsoleSender(), "Plugin.plugin-version", "%Version%", versionService.getServerVersion());
+        if(versionService.isNewerOrVersion(1, 18) && versionService.isAvailable()) return true;
+        messageService.sendMessage(Bukkit.getConsoleSender(), "Plugin.plugin-version", "%Version%", Bukkit.getServer().getVersion());
         updateService.checkForUpdates();
         Bukkit.getPluginManager().disablePlugin(this);
         return false;
@@ -217,14 +222,19 @@ public class GMusicMain extends JavaPlugin {
 
     private void loadFeatures() {
         try {
-            Class.forName("io.papermc.paper.event.entity.EntityMoveEvent");
-            supportsPaperFeature = true;
-        } catch(ClassNotFoundException e) { supportsPaperFeature = false; }
-
-        try {
             Class.forName("io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler");
             supportsTaskFeature = true;
         } catch(ClassNotFoundException e) { supportsTaskFeature = false; }
+
+        try {
+            Class.forName("io.papermc.paper.event.entity.EntityMoveEvent");
+            isPaperServer = true;
+        } catch(ClassNotFoundException e) { isPaperServer = false; }
+
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServerInitEvent");
+            isFoliaServer = true;
+        } catch(ClassNotFoundException e) { isFoliaServer = false; }
     }
 
     private void loadPluginDependencies() { }
@@ -232,11 +242,11 @@ public class GMusicMain extends JavaPlugin {
     private void printPluginLinks(CommandSender sender) { }
 
     private void setupBStatsMetric() {
-        BStatsMetric bStatsMetric = new BStatsMetric(this, BSTATS_RESOURCE_ID);
+        bStatsMetric = new BStatsMetric(this, BSTATS_RESOURCE_ID);
 
         bStatsMetric.addCustomChart(new BStatsMetric.SimplePie("plugin_language", () -> configService.L_LANG));
         bStatsMetric.addCustomChart(new BStatsMetric.AdvancedPie("minecraft_version_player_amount", () -> Map.of(versionService.getServerVersion(), Bukkit.getOnlinePlayers().size())));
-        bStatsMetric.addCustomChart(new BStatsMetric.SingleLineChart("song_amount", () -> songService.getSongs().size()));
+        bStatsMetric.addCustomChart(new BStatsMetric.SingleLineChart("song_count", () -> songService.getSongs().size()));
     }
 
 }

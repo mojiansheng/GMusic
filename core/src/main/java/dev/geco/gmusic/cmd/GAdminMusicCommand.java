@@ -7,11 +7,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class GAMusicCommand implements CommandExecutor {
+public class GAdminMusicCommand implements CommandExecutor {
 
     private final GMusicMain gMusicMain;
 
-    public GAMusicCommand(GMusicMain gMusicMain) {
+    public GAdminMusicCommand(GMusicMain gMusicMain) {
         this.gMusicMain = gMusicMain;
     }
 

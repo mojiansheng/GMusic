@@ -77,7 +77,7 @@ public class GMusicGUI {
 			public void ICliE(InventoryClickEvent event) {
 				if(!event.getInventory().equals(inventory)) return;
 				ClickType click = event.getClick();
-				if(gMusicMain.getVersionManager().executeMethod(event.getView(), "getBottomInventory").equals(event.getClickedInventory())) {
+				if(gMusicMain.getVersionService().executeMethod(event.getView(), "getBottomInventory").equals(event.getClickedInventory())) {
 					switch(click) {
 						case SHIFT_RIGHT:
 						case SHIFT_LEFT:
@@ -86,7 +86,7 @@ public class GMusicGUI {
 					}
 					return;
 				}
-				if(!gMusicMain.getVersionManager().executeMethod(event.getView(), "getTopInventory").equals(event.getClickedInventory())) return;
+				if(!gMusicMain.getVersionService().executeMethod(event.getView(), "getTopInventory").equals(event.getClickedInventory())) return;
 				event.setCancelled(true);
 				ItemStack itemStack = event.getCurrentItem();
 				if(itemStack == null) return;
@@ -254,7 +254,7 @@ public class GMusicGUI {
 
 	private IGMusicInputGUI getInputGUIInstance(IGMusicInputGUI.InputCallback call, IGMusicInputGUI.ValidateCallback validateCall) {
 		try {
-			Class<?> inputGUIClass = Class.forName(gMusicMain.getVersionManager().getPackagePath() + ".object.gui.GMusicInputGUI");
+			Class<?> inputGUIClass = Class.forName(gMusicMain.getVersionService().getPackagePath() + ".object.gui.GMusicInputGUI");
 			return (IGMusicInputGUI) inputGUIClass.getConstructor(IGMusicInputGUI.InputCallback.class, IGMusicInputGUI.ValidateCallback.class).newInstance(call, validateCall);
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not get input gui instance", e); }
 		return null;

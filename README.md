@@ -4,7 +4,7 @@
 
 This repository contains the GMusic project from the GPlugins series!
 
-- Website: [GMusic - Spigot](https://www.spigotmc.org/resources/GMusic.000000/)
+- Website: [GMusic - Spigot](https://www.spigotmc.org/resources/GMusic.84004/)
 - GitHub: [GMusic - GitHub](https://github.com/Gecolay/GMusic)
 - Discord: [GPlugins - Discord](https://discord.gg/Cy2P4AU)
 

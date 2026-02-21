@@ -2,42 +2,37 @@ name: ${name}
 version: ${version}
 description: ${description}
 authors: [Gecolay]
-website: https://www.spigotmc.org/resources/000000
+website: https://www.spigotmc.org/resources/84004
 main: ${main}
 api-version: 1.18
 folia-supported: true
 
 commands:
-
   gmusic:
-
     usage: /<command> play|playing|random|stop|pause|resume|skip|toggle
     aliases: [music, gsong, song]
     description: Music command
     permission: GMusic.Music
 
-  gamusic:
-
+  gadminmusic:
     usage: /<command>
-    aliases: [amusic]
+    aliases: [adminmusic, gamusic, amusic, gadminsong, adminsong, gasong, asong]
     description: AMusic command
-    permission: GMusic.AMusic
+    permission: GMusic.AdminMusic
 
   gmusicreload:
-
     usage: /<command>
     aliases: [gmusicrl]
     description: Plugin reload command
     permission: GMusic.Reload
 
 permissions:
-
   GMusic.*:
     default: op
     description: GMusic | Permissions
     children:
       GMusic.Music: true
-      GMusic.AMusic: true
+      GMusic.AdminMusic: true
       GMusic.Update: true
       GMusic.Reload: true
 
@@ -45,18 +40,18 @@ permissions:
     default: true
     description: Music command | Permission
 
-  GMusic.AMusic.*:
+  GMusic.AdminMusic.*:
     default: op
-    description: AMusic | Permission
+    description: AdminMusic | Permission
     children:
-      GMusic.AMusic: true
-      GMusic.AMusic.UseJukeBox: true
+      GMusic.AdminMusic: true
+      GMusic.AdminMusic.UseJukeBox: true
 
-  GMusic.AMusic:
+  GMusic.AdminMusic:
     default: op
-    description: AMusic command | Permission
+    description: AdminMusic command | Permission
 
-  GMusic.AMusic.UseJukeBox:
+  GMusic.AdminMusic.UseJukeBox:
     default: op
     description: UseJukeBox | Permission
 

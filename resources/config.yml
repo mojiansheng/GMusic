@@ -1,5 +1,4 @@
 Lang:
-
   # Plugin language
   lang: en_us
 
@@ -7,7 +6,6 @@ Lang:
   client-lang: true
 
 Options:
-
   # Plugin sends update notifications
   check-for-update: true
 
@@ -15,7 +13,6 @@ Options:
   WorldBlacklist: []
 
   Sound:
-
     # Defines whether the extended note range should be used for sounds (requires resource pack for players)
     extened-range: true
 
@@ -29,7 +26,6 @@ Options:
   max-jukebox-range: 500
 
   ActionBar:
-
     # Defines whether there should be actionbar messages
     show-messages: true
 
@@ -37,7 +33,6 @@ Options:
     show-while-playing: true
 
   Radio:
-
     # Defines whether the radio should be active
     active: true
 
@@ -48,7 +43,6 @@ Options:
   environment-effects: true
 
   PlayerSettings:
-
     # Defines the wait time until a song shuffles to the next
     time-until-shuffle: 1000
 
@@ -59,7 +53,6 @@ Options:
     save-on-quit: true
 
     Default:
-
       playlist-mode: 0
       volume: 70
       join: false
@@ -68,7 +61,6 @@ Options:
       reverse: false
 
   GUI:
-
     disable-random-song: false
     disable-playlist: false
     disable-options: false

@@ -97,7 +97,7 @@ public class GMusicInputGUI implements IGMusicInputGUI {
 
         if(inputItem.hasItemMeta() && inputItem.getItemMeta() != null) {
             input = inputItem.getItemMeta().getDisplayName();
-            inventory = (Inventory) gMusicMain.getVersionManager().executeMethod(gMusicMain.getVersionManager().executeMethod(anvilMenu, "getBukkitView"), "getTopInventory");
+            inventory = (Inventory) gMusicMain.getVersionService().executeMethod(gMusicMain.getVersionService().executeMethod(anvilMenu, "getBukkitView"), "getTopInventory");
             inventory.setItem(0, inputItem);
         }
 

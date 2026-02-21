@@ -1,5 +1,4 @@
 Plugin:
-
   plugin-enabled: "[P]&a The plugin was successfully enabled."
   plugin-link: "[P]&a Link with&6 %Link%&a successful!"
   plugin-update: "[P]&a New version available:&6 %NewVersion%&a!\n[P]&a Current version:&6 %Version%&a!\n[P]&a Download the latest version:\n[P]&6 %Path%"
@@ -10,7 +9,6 @@ Plugin:
   plugin-prefix: "&7[&6GMusic&7]"
 
 Messages:
-
   command-permission-error: "[P]&c You don't have permission to use this command!"
   command-sender-error: "[P]&c You can't run this command!"
   command-version-error: "[P]&c Outdated server version! (&b%Version%&c)\n[P]&c Upgrade the server to use this feature!"
@@ -32,7 +30,6 @@ Messages:
   actionbar-resume: "&aSong resumed"
 
 MusicGUI:
-
   title: "&cJukebox"
 
   music-pause: "&6Pause"
@@ -73,6 +70,5 @@ MusicGUI:
   disc-favorite: "&cFavorite"
 
 Items:
-
   jukebox-title: "&cJukeBox"
   jukebox-description: "&aJukeBox, which plays special Music!"

@@ -16,7 +16,7 @@ commands:
     permission: GMusic.Music
 
   gadminmusic:
-    usage: /<command> [jukebox|disc|download|radio|play|playing|random|stop|pause|resume|skip|toggle]
+    usage: /<command> [jukebox|disc|download|radio|edit|play|playing|random|stop|pause|resume|skip|toggle]
     aliases: [adminmusic, gamusic, amusic, gadminsong, adminsong, gasong, asong]
     description: AMusic command
     permission: GMusic.AdminMusic
@@ -32,16 +32,62 @@ permissions:
     default: op
     description: GMusic | Permissions
     children:
-      GMusic.Music: true
+      GMusic.Music.*: true
       GMusic.JukeBox: true
       GMusic.Disc: true
-      GMusic.AdminMusic: true
+      GMusic.AdminMusic.*: true
       GMusic.Update: true
       GMusic.Reload: true
+
+  GMusic.Music.*:
+    default: true
+    description: Music command | Permission
+    children:
+      GMusic.Music: true
+      GMusic.Music.Play: true
+      GMusic.Music.Playing: true
+      GMusic.Music.Random: true
+      GMusic.Music.Stop: true
+      GMusic.Music.Pause: true
+      GMusic.Music.Resume: true
+      GMusic.Music.Skip: true
+      GMusic.Music.Toggle: true
 
   GMusic.Music:
     default: true
     description: Music command | Permission
+
+  GMusic.Music.Play:
+    default: true
+    description: Music Play command | Permission
+
+  GMusic.Music.Playing:
+    default: true
+    description: Music Playing command | Permission
+
+  GMusic.Music.Random:
+    default: true
+    description: Music Random command | Permission
+
+  GMusic.Music.Stop:
+    default: true
+    description: Music Stop command | Permission
+
+  GMusic.Music.Pause:
+    default: true
+    description: Music Pause command | Permission
+
+  GMusic.Music.Resume:
+    default: true
+    description: Music Resume command | Permission
+
+  GMusic.Music.Skip:
+    default: true
+    description: Music Skip command | Permission
+
+  GMusic.Music.Toggle:
+    default: true
+    description: Music Toggle command | Permission
 
   GMusic.JukeBox:
     default: true
@@ -56,10 +102,75 @@ permissions:
     description: AdminMusic | Permission
     children:
       GMusic.AdminMusic: true
+      GMusic.AdminMusic.JukeBox: true
+      GMusic.AdminMusic.Disc: true
+      GMusic.AdminMusic.Download: true
+      GMusic.AdminMusic.Radio: true
+      GMusic.AdminMusic.Edit: true
+      GMusic.AdminMusic.Play: true
+      GMusic.AdminMusic.Playing: true
+      GMusic.AdminMusic.Random: true
+      GMusic.AdminMusic.Stop: true
+      GMusic.AdminMusic.Pause: true
+      GMusic.AdminMusic.Resume: true
+      GMusic.AdminMusic.Skip: true
+      GMusic.AdminMusic.Toggle: true
 
   GMusic.AdminMusic:
     default: op
     description: AdminMusic command | Permission
+
+  GMusic.AdminMusic.JukeBox:
+    default: op
+    description: AdminMusic JukeBox command | Permission
+
+  GMusic.AdminMusic.Disc:
+    default: op
+    description: AdminMusic Disc command | Permission
+
+  GMusic.AdminMusic.Download:
+    default: op
+    description: AdminMusic Download command | Permission
+
+  GMusic.AdminMusic.Radio:
+    default: op
+    description: AdminMusic Radio command | Permission
+
+  GMusic.AdminMusic.Edit:
+    default: op
+    description: AdminMusic Edit command | Permission
+
+  GMusic.AdminMusic.Play:
+    default: op
+    description: AdminMusic Play command | Permission
+
+  GMusic.AdminMusic.Playing:
+    default: op
+    description: AdminMusic Playing command | Permission
+
+  GMusic.AdminMusic.Random:
+    default: op
+    description: AdminMusic Random command | Permission
+
+  GMusic.AdminMusic.Stop:
+    default: op
+    description: AdminMusic Stop command | Permission
+
+  GMusic.AdminMusic.Pause:
+    default: op
+    description: AdminMusic Pause command | Permission
+
+  GMusic.AdminMusic.Resume:
+    default: op
+    description: AdminMusic Resume command | Permission
+
+  GMusic.AdminMusic.Skip:
+    default: op
+    description: AdminMusic Skip command | Permission
+
+  GMusic.AdminMusic.Toggle:
+    default: op
+    description: AdminMusic Toggle command | Permission
 
   GMusic.ByPass.*:
     default: op

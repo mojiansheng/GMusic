@@ -25,22 +25,22 @@ public class GMusicTabComplete implements TabCompleter {
         if(!(sender instanceof Player)) return complete;
 
         if(args.length == 1) {
-            if(gMusicMain.getPermissionService().hasPermission(sender, "Music")) {
-                complete.add("play");
-                complete.add("playing");
-                complete.add("random");
-                complete.add("stop");
-                complete.add("pause");
-                complete.add("resume");
-                complete.add("skip");
-                complete.add("toggle");
+            if(gMusicMain.getPermissionService().hasPermission(sender, "Music", "Music.*")) {
+                if(gMusicMain.getPermissionService().hasPermission(sender, "Music.Play", "Music.*")) complete.add("play");
+                if(gMusicMain.getPermissionService().hasPermission(sender, "Music.Playing", "Music.*")) complete.add("playing");
+                if(gMusicMain.getPermissionService().hasPermission(sender, "Music.Random", "Music.*")) complete.add("random");
+                if(gMusicMain.getPermissionService().hasPermission(sender, "Music.Stop", "Music.*")) complete.add("stop");
+                if(gMusicMain.getPermissionService().hasPermission(sender, "Music.Pause", "Music.*")) complete.add("pause");
+                if(gMusicMain.getPermissionService().hasPermission(sender, "Music.Resume", "Music.*")) complete.add("resume");
+                if(gMusicMain.getPermissionService().hasPermission(sender, "Music.Skip", "Music.*")) complete.add("skip");
+                if(gMusicMain.getPermissionService().hasPermission(sender, "Music.Toggle", "Music.*")) complete.add("toggle");
             }
             if(!args[args.length - 1].isEmpty()) {
                 for(String entry : complete) if(entry.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) completeStarted.add(entry);
                 complete.clear();
             }
         } else if(args.length == 2) {
-            if(gMusicMain.getPermissionService().hasPermission(sender, "Music")) {
+            if(gMusicMain.getPermissionService().hasPermission(sender, "Music", "Music.*") && gMusicMain.getPermissionService().hasPermission(sender, "Music." + args[0], "Music.*")) {
                 if(args[0].equalsIgnoreCase("play")) {
                     for(Song song : gMusicMain.getSongService().getSongs()) complete.add(song.getId());
                 }

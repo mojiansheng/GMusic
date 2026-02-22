@@ -1,6 +1,7 @@
 package dev.geco.gmusic.service.converter;
 
 import dev.geco.gmusic.GMusicMain;
+import dev.geco.gmusic.service.SongService;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.sound.midi.MidiEvent;
@@ -256,14 +257,14 @@ public class MidiConverter {
 			int extensionPos = gnbsFilename.lastIndexOf(".");
 			if(extensionPos != -1) gnbsFilename = gnbsFilename.substring(0, extensionPos);
 
-			File gnbsFile = new File(gMusicMain.getDataFolder(), "songs/" + gnbsFilename + ".gnbs");
+			File gnbsFile = new File(gMusicMain.getDataFolder(), SongService.GNBS_FOLDER + "/" + gnbsFilename + "." + SongService.GNBS_EXTENSION);
 			YamlConfiguration gnbsStruct = YamlConfiguration.loadConfiguration(gnbsFile);
 
 			String title = midiFile.getName().replaceFirst("[.][^.]+$", "");
 
 			gnbsStruct.set("Song.Id", title.replace(" ", ""));
 			gnbsStruct.set("Song.Title", title);
-			gnbsStruct.set("Song.OAuthor", "");
+			gnbsStruct.set("Song.OriginalAuthor", "");
 			gnbsStruct.set("Song.Author", "");
 			gnbsStruct.set("Song.Description", new ArrayList<>());
 			gnbsStruct.set("Song.Category", "RECORDS");
@@ -275,7 +276,7 @@ public class MidiConverter {
 			gnbsStruct.save(gnbsFile);
 
 			return true;
-		} catch (Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not convert midi file to gnbs file!", e); }
+		} catch (Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not convert midi file to " + SongService.GNBS_EXTENSION + " file!", e); }
 
 		return false;
 	}
@@ -297,7 +298,7 @@ public class MidiConverter {
 					MidiMessage midiMessage = midiEvent.getMessage();
 					if(!(midiMessage instanceof ShortMessage shortMidiMessage)) continue;
 
-                    if(shortMidiMessage.getCommand() == ShortMessage.PROGRAM_CHANGE) {
+					if(shortMidiMessage.getCommand() == ShortMessage.PROGRAM_CHANGE) {
 						lastData = shortMidiMessage.getData1();
 						continue;
 					}

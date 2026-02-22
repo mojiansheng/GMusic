@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 public class PlayerEventHandler implements Listener {
 
-    private static final String RESOURCE_PACK_URL = "https://github.com/Gecolay/GMusic/raw/main/resources/resource_pack/note_block_extended_octave_range.zip";
+    private static final String RESOURCE_PACK_URL = "https://github.com/gecolay/GMusic/raw/main/resources/resource_pack/note_block_extended_octave_range.zip";
 
     private final GMusicMain gMusicMain;
 
@@ -32,6 +33,8 @@ public class PlayerEventHandler implements Listener {
 
         if(gMusicMain.getConfigService().S_EXTENDED_RANGE && gMusicMain.getConfigService().S_FORCE_RESOURCES) player.setResourcePack(RESOURCE_PACK_URL, "null", true);
 
+        if(!gMusicMain.getEnvironmentUtil().isEntityInAllowedWorld(player)) return;
+
         GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(playerUuid);
 
         if(gMusicMain.getConfigService().R_PLAY_ON_JOIN) playSettings.setPlayListMode(GPlayListMode.RADIO);
@@ -44,6 +47,21 @@ public class PlayerEventHandler implements Listener {
                 gMusicMain.getPlayService().playSong(player, song != null ? song : gMusicMain.getPlayService().getRandomSong(playerUuid));
             }
         }
+    }
+
+    @EventHandler
+    public void playerChangedWorldEvent(PlayerChangedWorldEvent event) {
+        Player player = event.getPlayer();
+        UUID playerUuid = player.getUniqueId();
+        GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(playerUuid);
+
+        if(!gMusicMain.getEnvironmentUtil().isEntityInAllowedWorld(player)) {
+            gMusicMain.getPlayService().stopSong(player);
+            gMusicMain.getRadioService().removeRadioPlayer(player);
+            return;
+        }
+
+        if(playSettings.getPlayListMode() == GPlayListMode.RADIO) gMusicMain.getRadioService().addRadioPlayer(player);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

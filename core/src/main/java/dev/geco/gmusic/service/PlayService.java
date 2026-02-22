@@ -31,7 +31,7 @@ public class PlayService {
 		this.gMusicMain = gMusicMain;
 	}
 
-	public void playSong(Player player, GSong song) { playSong(player, song, 0);}
+	public void playSong(Player player, GSong song) { playSong(player, song, 0); }
 
 	private void playSong(Player player, GSong song, long delay) {
 		if(song == null) return;
@@ -50,12 +50,12 @@ public class PlayService {
 
 		if(gMusicMain.getConfigService().A_SHOW_MESSAGES) {
 			gMusicMain.getMessageService().sendActionBarMessage(
-					player,
-					"Messages.actionbar-play",
-					"%Song%", song.getId(),
-					"%SongTitle%", song.getTitle(),
-					"%Author%", song.getAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-author") : song.getAuthor(),
-					"%OAuthor%", song.getOriginalAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-oauthor") : song.getOriginalAuthor()
+				player,
+				"Messages.actionbar-play",
+				"%Song%", song.getId(),
+				"%SongTitle%", song.getTitle(),
+				"%Author%", song.getAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-author") : song.getAuthor(),
+				"%OriginalAuthor%", song.getOriginalAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-original-author") : song.getOriginalAuthor()
 			);
 		}
 
@@ -79,9 +79,13 @@ public class PlayService {
 		GPlayState playState = getPlayState(uuid);
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(player.getUniqueId());
 
+		final long[] ticker = {0};
+
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
+				ticker[0]++;
+
 				long position = playState.getTickPosition();
 
 				List<GNotePart> noteParts = song.getContent().get(position);
@@ -93,7 +97,7 @@ public class PlayService {
 						if(notePart.getSound() != null) {
 							float volume = playSettings.getFixedVolume() * notePart.getVolume();
 
-							Location location = notePart.getDistance() == 0 ? player.getLocation() : gMusicMain.getSteroNoteUtil().convertToStero(player.getLocation(), notePart.getDistance());
+							Location location = notePart.getDistance() == 0 ? player.getEyeLocation() : gMusicMain.getSteroNoteUtil().convertToStero(player.getEyeLocation(), notePart.getDistance());
 
 							if(!gMusicMain.getConfigService().ENVIRONMENT_EFFECTS) player.playSound(location, notePart.getSound(), song.getSoundCategory(), volume, notePart.getPitch());
 							else {
@@ -123,14 +127,14 @@ public class PlayService {
 
 				playState.setTickPosition(playSettings.isReverseMode() ? position - 1 : position + 1);
 
-				if(gMusicMain.getConfigService().A_SHOW_WHILE_PLAYING) {
+				if(gMusicMain.getConfigService().A_SHOW_WHILE_PLAYING && ticker[0] % 2000 == 0) {
 					gMusicMain.getMessageService().sendActionBarMessage(
-							player,
-							"Messages.actionbar-playing",
-							"%Song%", song.getId(),
-							"%SongTitle%", song.getTitle(),
-							"%Author%", song.getAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-author") : song.getAuthor(),
-							"%OAuthor%", song.getOriginalAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-oauthor") : song.getOriginalAuthor()
+						player,
+						"Messages.actionbar-playing",
+						"%Song%", song.getId(),
+						"%SongTitle%", song.getTitle(),
+						"%Author%", song.getAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-author") : song.getAuthor(),
+						"%OriginalAuthor%", song.getOriginalAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-original-author") : song.getOriginalAuthor()
 					);
 				}
 			}

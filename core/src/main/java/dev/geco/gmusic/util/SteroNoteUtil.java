@@ -1,6 +1,7 @@
 package dev.geco.gmusic.util;
 
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 public class SteroNoteUtil {
 
@@ -14,7 +15,7 @@ public class SteroNoteUtil {
         }
     }
 
-    public Location convertToStero(Location location, float offset) {
+    public Location convertToStero(@NotNull Location location, float offset) {
         float yaw = location.getYaw();
         return location.clone().add(cos[(int) (yaw + 360) % 360] * offset, 0, sin[(int) (yaw + 360) % 360] * offset);
     }

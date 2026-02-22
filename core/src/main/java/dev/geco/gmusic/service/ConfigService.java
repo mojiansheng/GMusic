@@ -17,7 +17,6 @@ public class ConfigService {
     public String L_LANG;
     public boolean L_CLIENT_LANG;
     public boolean CHECK_FOR_UPDATE;
-    public List<String> WORLDBLACKLIST = new ArrayList<>();
     public boolean S_EXTENDED_RANGE;
     public boolean S_FORCE_RESOURCES;
     public int JUKEBOX_RANGE;
@@ -27,6 +26,9 @@ public class ConfigService {
     public boolean R_ACTIVE;
     public boolean R_PLAY_ON_JOIN;
     public boolean ENVIRONMENT_EFFECTS;
+    public boolean TRUSTED_REGION_ONLY;
+    public List<String> WORLDBLACKLIST = new ArrayList<>();
+    public List<String> WORLDWHITELIST = new ArrayList<>();
     public int PS_TIME_UNTIL_SHUFFLE;
     public int PS_TIME_UNTIL_REPEAT;
     public boolean PS_SAVE_ON_QUIT;
@@ -75,7 +77,6 @@ public class ConfigService {
         L_CLIENT_LANG = gMusicMain.getConfig().getBoolean("Lang.client-lang", true);
 
         CHECK_FOR_UPDATE = gMusicMain.getConfig().getBoolean("Options.check-for-update", true);
-        WORLDBLACKLIST = gMusicMain.getConfig().getStringList("Options.WorldBlacklist");
 
         S_EXTENDED_RANGE = gMusicMain.getConfig().getBoolean("Options.Sound.extened-range", true);
         S_FORCE_RESOURCES = gMusicMain.getConfig().getBoolean("Options.Sound.force-resources", true);
@@ -90,6 +91,9 @@ public class ConfigService {
         R_PLAY_ON_JOIN = gMusicMain.getConfig().getBoolean("Options.Radio.play-on-join", false);
 
         ENVIRONMENT_EFFECTS = gMusicMain.getConfig().getBoolean("Options.environment-effects", true);
+        TRUSTED_REGION_ONLY = gMusicMain.getConfig().getBoolean("Options.trusted-region-only", true);
+        WORLDBLACKLIST = gMusicMain.getConfig().getStringList("Options.WorldBlacklist");
+        WORLDWHITELIST = gMusicMain.getConfig().getStringList("Options.WorldWhitelist");
 
         PS_TIME_UNTIL_SHUFFLE = gMusicMain.getConfig().getInt("Options.PlayerSettings.time-until-shuffle", 1000);
         PS_TIME_UNTIL_REPEAT = gMusicMain.getConfig().getInt("Options.PlayerSettings.time-until-repeat", 1000);

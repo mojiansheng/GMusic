@@ -9,9 +9,6 @@ Options:
   # Plugin sends update notifications
   check-for-update: true
 
-  # List of worlds where all features are disabled
-  WorldBlacklist: []
-
   Sound:
     # Defines whether the extended note range should be used for sounds (requires resource pack for players)
     extened-range: true
@@ -41,6 +38,16 @@ Options:
 
   # Defines whether a player should get a special sound effects in a certain environment (underwater)
   environment-effects: true
+
+  # Restrict all features to be only available to trusted players in a region (supported: PlotSquared & GriefPrevention)
+  trusted-region-only: true
+
+  # List of worlds where all features are disabled
+  WorldBlacklist:
+  - "blocked_world"
+
+  # List of worlds where all features are enabled (other worlds are blocked when the list is not empty)
+  WorldWhitelist: []
 
   PlayerSettings:
     # Defines the wait time until a song shuffles to the next

@@ -1,6 +1,7 @@
 package dev.geco.gmusic.service.converter;
 
 import dev.geco.gmusic.GMusicMain;
+import dev.geco.gmusic.service.SongService;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.DataInputStream;
@@ -20,7 +21,7 @@ public class NBSConverter {
 		this.gMusicMain = gMusicMain;
 	}
 
-	public void convertNBSFile(File nbsFile) {
+	public boolean convertNBSFile(File nbsFile) {
 		try {
 			DataInputStream dataInput = new DataInputStream(Files.newInputStream(nbsFile.toPath()));
 
@@ -138,13 +139,13 @@ public class NBSConverter {
 			int extensionPos = gnbsFilename.lastIndexOf(".");
 			if(extensionPos != -1) gnbsFilename = gnbsFilename.substring(0, extensionPos);
 
-			File gnbsFile = new File(gMusicMain.getDataFolder(), "songs/" + gnbsFilename + ".gnbs");
+			File gnbsFile = new File(gMusicMain.getDataFolder(), SongService.GNBS_FOLDER + "/" + gnbsFilename + "." + SongService.GNBS_EXTENSION);
 
 			YamlConfiguration gnbsStruct = YamlConfiguration.loadConfiguration(gnbsFile);
 
 			gnbsStruct.set("Song.Id", title.replace(" ", ""));
 			gnbsStruct.set("Song.Title", title);
-			gnbsStruct.set("Song.OAuthor", originalAuthor);
+			gnbsStruct.set("Song.OriginalAuthor", originalAuthor);
 			gnbsStruct.set("Song.Author", author);
 			gnbsStruct.set("Song.Description", description.replace(" ", "").isEmpty() ? new ArrayList<>() : Arrays.asList(description.split("\n")));
 			gnbsStruct.set("Song.Category", "RECORDS");
@@ -156,7 +157,11 @@ public class NBSConverter {
 			gnbsStruct.set("Song.Content.Main", gnbsContent);
 
 			gnbsStruct.save(gnbsFile);
-		} catch (Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not convert nbs file to gnbs file!", e); }
+
+			return true;
+		} catch (Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not convert nbs file to " + SongService.GNBS_EXTENSION + " file!", e); }
+
+		return false;
 	}
 
 	private short readShort(DataInputStream dataInput) throws IOException {

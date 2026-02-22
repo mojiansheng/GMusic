@@ -14,6 +14,7 @@ Messages:
   command-version-error: "[P]&c Outdated server version! (&b%Version%&c)\n[P]&c Upgrade the server to use this feature!"
 
   command-gmusic-use-error: "[P]&c /music play|playing|random|stop|pause|resume|skip|toggle"
+  command-gmusic-world-error: "[P]&c You can't use music in this world!"
   command-gmusic-song-error: "[P]&c The song&6 %Song%&c does not exist!"
   command-gmusic-no-song-error: "[P]&c There are no songs!"
   command-gmusic-play: "[P]&a Now playing:&6 %SongTitle%"
@@ -23,6 +24,20 @@ Messages:
   command-gmusic-paused-error: "[P]&c There is currently no paused song!"
   command-gmusic-pause: "[P]&a Song paused."
   command-gmusic-resume: "[P]&a Song resumed."
+
+  command-gadminmusic-use-error: "[P]&c /adminmusic jukebox|disc|download|radio"
+  command-gadminmusic-target-error: "[P]&6 %Target%&c is not a valid target!"
+  command-gadminmusic-amount-error: "[P]&c %Amount%&c is not a valid amount!"
+  command-gadminmusic-jukebox-use-error: "[P]&c /adminmusic jukebox [<Player>] [<Amount>]"
+  command-gadminmusic-jukebox: "[P]&a Added&b %Amount% JukeBoxes to&6 %Player%&a."
+  command-gadminmusic-disc-use-error: "[P]&c /adminmusic disc <Song> [<Player>] [<Amount>]"
+  command-gadminmusic-disc: "[P]&a Added&b %Amount% discs to&6 %Player%&a."
+  command-gadminmusic-download-use-error: "[P]&c /adminmusic download <Type> <Song> <Url>"
+  command-gadminmusic-download-type-error: "[P]&6 %Type%&c is not a valid download type!"
+  command-gadminmusic-download-filename-error: "[P]&6 %Filename%&c already exists!"
+  command-gadminmusic-download-error: "[P]&c An error occurred during the download!"
+  command-gadminmusic-download: "[P]&a Successfully downloaded&6 %Filename%&a."
+
   actionbar-play: "&aNow playing:&6 %SongTitle%"
   actionbar-playing: "&aNow playing:&6 %SongTitle%"
   actionbar-stop: "&aSong stopped"
@@ -31,6 +46,7 @@ Messages:
 
 MusicGUI:
   title: "&cJukebox"
+  radio-title: "&cRadio"
 
   music-pause: "&6Pause"
   music-resume: "&6Resume"
@@ -58,17 +74,20 @@ MusicGUI:
 
   music-search-none: "&cSearch"
   music-search: "&cSearch:&6 %Search%"
-  music-search-menu-title: "&cSearch for a Song"
+  music-search-menu-title: "&cSearch for a song"
   music-search-menu-field: "Search"
 
-  last-page: "&6Previous Page"
-  next-page: "&6Next Page"
+  last-page: "&6Previous page"
+  next-page: "&6Next page"
 
-  disc-title: "&b%Title%&7 -&6 %OAuthor%"
+  disc-title: "&b%Title%&7 -&6 %OriginalAuthor%"
   disc-empty-author: "Unknown"
-  disc-empty-oauthor: "Unknown"
+  disc-empty-original-author: "Unknown"
   disc-favorite: "&cFavorite"
 
 Items:
   jukebox-title: "&cJukeBox"
-  jukebox-description: "&aJukeBox, which plays special Music!"
+  jukebox-description: "&aA JukeBox, which plays special music!"
+
+  disc-title: "&cDisc&6 %SongTitle%"
+  disc-description: "&aA Disc, which plays special music!"

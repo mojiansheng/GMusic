@@ -6,16 +6,17 @@ website: https://www.spigotmc.org/resources/84004
 main: ${main}
 api-version: 1.18
 folia-supported: true
+softdepend: [GriefPrevention, PlotSquared, WorldGuard]
 
 commands:
   gmusic:
-    usage: /<command> play|playing|random|stop|pause|resume|skip|toggle
+    usage: /<command> [play|playing|random|stop|pause|resume|skip|toggle]
     aliases: [music, gsong, song]
     description: Music command
     permission: GMusic.Music
 
   gadminmusic:
-    usage: /<command>
+    usage: /<command> [jukebox|disc|download|radio]
     aliases: [adminmusic, gamusic, amusic, gadminsong, adminsong, gasong, asong]
     description: AMusic command
     permission: GMusic.AdminMusic
@@ -32,6 +33,8 @@ permissions:
     description: GMusic | Permissions
     children:
       GMusic.Music: true
+      GMusic.JukeBox: true
+      GMusic.Disc: true
       GMusic.AdminMusic: true
       GMusic.Update: true
       GMusic.Reload: true
@@ -40,20 +43,38 @@ permissions:
     default: true
     description: Music command | Permission
 
+  GMusic.JukeBox:
+    default: true
+    description: JukeBox interaction | Permission
+
+  GMusic.Disc:
+    default: true
+    description: Disc interaction | Permission
+
   GMusic.AdminMusic.*:
     default: op
     description: AdminMusic | Permission
     children:
       GMusic.AdminMusic: true
-      GMusic.AdminMusic.UseJukeBox: true
 
   GMusic.AdminMusic:
     default: op
     description: AdminMusic command | Permission
 
-  GMusic.AdminMusic.UseJukeBox:
+  GMusic.ByPass.*:
     default: op
-    description: UseJukeBox | Permission
+    description: ByPass | Permission
+    children:
+      GMusic.ByPass.World: true
+      GMusic.ByPass.Region: true
+
+  GMusic.ByPass.World:
+    default: op
+    description: ByPass world | Permission
+
+  GMusic.ByPass.Region:
+    default: op
+    description: ByPass region | Permission
 
   GMusic.Update:
     default: op

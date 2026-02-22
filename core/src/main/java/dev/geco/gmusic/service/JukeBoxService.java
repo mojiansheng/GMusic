@@ -16,6 +16,7 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -25,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -33,7 +35,7 @@ public class JukeBoxService {
 	private final GMusicMain gMusicMain;
 	private final NamespacedKey jukeBoxKey;
 	private final HashMap<Block, UUID> jukeBoxBlocks = new HashMap<>();
-	private final HashMap<Block, UUID> radioJukeBoxBlocks = new HashMap<>();
+	private final HashMap<UUID, Block> jukeBoxes = new HashMap<>();
 	private final Random random = new Random();
 
 	public JukeBoxService(GMusicMain gMusicMain) {
@@ -56,15 +58,22 @@ public class JukeBoxService {
 		itemMeta.setDisplayName(gMusicMain.getMessageService().getMessage("Items.jukebox-title"));
 		itemMeta.setLore(List.of(gMusicMain.getMessageService().getMessage("Items.jukebox-description")));
 		itemMeta.getPersistentDataContainer().set(jukeBoxKey, PersistentDataType.BOOLEAN, true);
+		itemMeta.addItemFlags(ItemFlag.values());
 		itemStack.setItemMeta(itemMeta);
 		return itemStack;
 	}
 
 	public UUID getJukeBoxId(Block block) { return jukeBoxBlocks.get(block); }
 
+	public Block getJukeBoxBlock(UUID uuid) { return jukeBoxes.get(uuid); }
+
+	public void addTemporaryJukeBoxBlock(UUID uuid, Block block) { jukeBoxes.put(uuid, block); }
+
+	public void removeTemporaryJukeBoxBlock(UUID uuid) { jukeBoxes.remove(uuid); }
+
 	public void loadJukeboxes(World world) {
 		jukeBoxBlocks.clear();
-		radioJukeBoxBlocks.clear();
+		jukeBoxes.clear();
 		gMusicMain.getTaskService().runDelayed(() -> {
 			try {
 				try(ResultSet jukeBoxData = gMusicMain.getDataService().executeAndGet("SELECT * FROM gmusic_juke_box")) {
@@ -86,7 +95,8 @@ public class JukeBoxService {
 						GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 
 						jukeBoxBlocks.put(block, uuid);
-						if(playSettings.getPlayListMode() == GPlayListMode.RADIO) radioJukeBoxBlocks.put(block, uuid);
+						jukeBoxes.put(uuid, block);
+						if(playSettings.getPlayListMode() == GPlayListMode.RADIO) gMusicMain.getRadioService().addRadioJukeBox(uuid, block);
 						else if(playSettings.isPlayOnJoin()) {
 							if(gMusicMain.getPlayService().hasPlayingSong(uuid)) resumeBoxSong(uuid);
 							else {
@@ -112,10 +122,11 @@ public class JukeBoxService {
 					block.getY(),
 					block.getZ()
 			);
-			GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
+			GPlaySettings playSettings = gMusicMain.getPlaySettingsService().generateDefaultPlaySettings(uuid);
 			playSettings.setRange(gMusicMain.getConfigService().JUKEBOX_RANGE);
-			if(playSettings.getPlayListMode() == GPlayListMode.RADIO) radioJukeBoxBlocks.put(block, uuid);
+			if(playSettings.getPlayListMode() == GPlayListMode.RADIO) gMusicMain.getRadioService().addRadioJukeBox(uuid, block);
 			jukeBoxBlocks.put(block, uuid);
+			jukeBoxes.put(uuid, block);
 			new GMusicGUI(uuid, GMusicGUI.MenuType.JUKEBOX);
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not set jukebox", e); }
 	}
@@ -126,8 +137,9 @@ public class JukeBoxService {
 		stopBoxSong(uuid);
 		gMusicMain.getPlaySettingsService().savePlaySettings(uuid, null);
 		GMusicGUI.getMusicGUI(uuid).close(true);
-		radioJukeBoxBlocks.remove(block);
+		gMusicMain.getRadioService().removeRadioJukeBox(uuid);
 		jukeBoxBlocks.remove(block);
+		jukeBoxes.remove(uuid);
 		try {
 			gMusicMain.getDataService().execute("DELETE FROM gmusic_juke_box WHERE uuid = ?", uuid.toString());
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not remove jukebox", e); }
@@ -135,7 +147,6 @@ public class JukeBoxService {
 
 	public HashMap<Player, Double> getPlayersInRange(Location location, long range) {
 		HashMap<Player, Double> playerRangeMap = new HashMap<>();
-		if(gMusicMain.getConfigService().WORLDBLACKLIST.contains(location.getWorld().getName())) return playerRangeMap;
 		try {
 			for(Player player : location.getWorld().getPlayers()) {
 				double distance = location.distance(player.getLocation());
@@ -163,8 +174,19 @@ public class JukeBoxService {
 		playSettings.setCurrentSong(song.getId());
 
 		if(gMusicMain.getConfigService().A_SHOW_MESSAGES) {
-			//TextComponent anpc = new TextComponent(gMusicMain.getMManager().getMessage("Messages.actionbar-play", "%Title%", Song.getTitle(), "%Author%", Song.getAuthor().equals("") ? gMusicMain.getMManager().getMessage("MusicGUI.disc-empty-author") : Song.getAuthor(), "%OAuthor%", Song.getOriginalAuthor().equals("") ? gMusicMain.getMManager().getMessage("MusicGUI.disc-empty-oauthor") : Song.getOriginalAuthor()));
-			//for(Player P : gMusicMain.getJukeBoxManager().getPlayersInRange(gMusicMain.getValues().getJukeBlocks().get(UUID), playSettings.getRange()).keySet()) P.spigot().sendMessage(ChatMessageType.ACTION_BAR, anpc);
+			Block block = jukeBoxes.get(uuid);
+			if(block != null) {
+				for(Player player : getPlayersInRange(block.getLocation().add(0.5, 0, 0.5), playSettings.getRange()).keySet()) {
+					gMusicMain.getMessageService().sendActionBarMessage(
+						player,
+						"Messages.actionbar-play",
+						"%Song%", song.getId(),
+						"%SongTitle%", song.getTitle(),
+						"%Author%", song.getAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-author") : song.getAuthor(),
+						"%OriginalAuthor%", song.getOriginalAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-original-author") : song.getOriginalAuthor()
+					);
+				}
+			}
 		}
 
 		playBoxTimer(uuid, song, timer);
@@ -172,46 +194,52 @@ public class JukeBoxService {
 
 	private void playBoxTimer(UUID uuid, GSong song, Timer timer) {
 		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
+		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 
-		Location boxLocation = jukeBoxBlocks.entrySet().stream().filter(entry -> entry.getValue().equals(uuid)).findFirst().get().getKey().getLocation();
+		Block block = jukeBoxes.get(uuid);
+		if(block == null) return;
+		Location boxLocation = block.getLocation().add(0.5, 0, 0.5);
 
-		gMusicMain.getTaskService().runAtFixedRate(() -> {
-			long z = playState.getTickPosition();
+		final long[] ticker = {0};
 
-			GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
+		timer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				ticker[0]++;
 
-			if(playSettings != null) {
-				List<GNotePart> lnp = song.getContent().get(z);
+				long position = playState.getTickPosition();
 
-				HashMap<Player, Double> pl = getPlayersInRange(boxLocation, playSettings.getRange());
+				List<GNotePart> noteParts = song.getContent().get(position);
 
-				if(lnp != null && playSettings.getVolume() > 0 && !pl.isEmpty()) {
+				HashMap<Player, Double> playersInRange = getPlayersInRange(boxLocation, playSettings.getRange());
+
+				if(noteParts != null && playSettings.getVolume() > 0 && !playersInRange.isEmpty()) {
 					if(playSettings.isShowingParticles()) {
-						Location PL = boxLocation.clone().add(random.nextDouble() - 0.5, 1, random.nextDouble() - 0.5);
-						for(Player P : pl.keySet()) P.spawnParticle(Particle.NOTE, PL, 0, random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);
+						Location particleLocation = boxLocation.clone().add(random.nextDouble() - 0.5, 1.25, random.nextDouble() - 0.5);
+						for(Player player : playersInRange.keySet()) player.spawnParticle(Particle.NOTE, particleLocation, 0, random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);
 					}
 
-					for(GNotePart np : lnp) {
-						for(Player P : pl.keySet()) {
-							if(np.getSound() != null) {
-								float volume = (float) ((pl.get(P) - playSettings.getRange()) * playSettings.getFixedVolume() / (double) -playSettings.getRange()) * np.getVolume();
+					for(GNotePart notePart : noteParts) {
+						for(Player player : playersInRange.keySet()) {
+							if(notePart.getSound() != null) {
+								float volume = (float) ((playersInRange.get(player) - playSettings.getRange()) * playSettings.getFixedVolume() / (double) -playSettings.getRange()) * notePart.getVolume();
 
-								Location location = np.getDistance() == 0 ? P.getLocation() : gMusicMain.getSteroNoteUtil().convertToStero(P.getLocation(), np.getDistance());
+								Location location = notePart.getDistance() == 0 ? player.getEyeLocation() : gMusicMain.getSteroNoteUtil().convertToStero(player.getEyeLocation(), notePart.getDistance());
 
-								if(!gMusicMain.getConfigService().ENVIRONMENT_EFFECTS) P.playSound(location, np.getSound(), song.getSoundCategory(), volume, np.getPitch());
+								if(!gMusicMain.getConfigService().ENVIRONMENT_EFFECTS) player.playSound(location, notePart.getSound(), song.getSoundCategory(), volume, notePart.getPitch());
 								else {
-									if(gMusicMain.getEnvironmentUtil().isPlayerSwimming(P)) P.playSound(location, np.getSound(), song.getSoundCategory(), volume > 0.4f ? volume - 0.3f : volume, np.getPitch() - 0.15f);
-									else P.playSound(location, np.getSound(), song.getSoundCategory(), volume, np.getPitch());
+									if(gMusicMain.getEnvironmentUtil().isPlayerSwimming(player)) player.playSound(location, notePart.getSound(), song.getSoundCategory(), volume > 0.4f ? volume - 0.3f : volume, notePart.getPitch() - 0.15f);
+									else player.playSound(location, notePart.getSound(), song.getSoundCategory(), volume, notePart.getPitch());
 								}
-							} else if(np.getStopSound() != null) P.stopSound(np.getStopSound(), song.getSoundCategory());
+							} else if(notePart.getStopSound() != null) player.stopSound(notePart.getStopSound(), song.getSoundCategory());
 						}
 					}
 				}
 
-				if(z == (playSettings.isReverseMode() ? 0 : song.getLength())) {
+				if(position == (playSettings.isReverseMode() ? 0 : song.getLength())) {
 					if(playSettings.getPlayMode() == GPlayMode.LOOP && playSettings.getPlayListMode() != GPlayListMode.RADIO) {
-						z = playSettings.isReverseMode() ? song.getLength() + gMusicMain.getConfigService().PS_TIME_UNTIL_REPEAT : -gMusicMain.getConfigService().PS_TIME_UNTIL_REPEAT;
-						playState.setTickPosition(z);
+						position = playSettings.isReverseMode() ? song.getLength() + gMusicMain.getConfigService().PS_TIME_UNTIL_REPEAT : -gMusicMain.getConfigService().PS_TIME_UNTIL_REPEAT;
+						playState.setTickPosition(position);
 					} else {
 						timer.cancel();
 
@@ -223,10 +251,21 @@ public class JukeBoxService {
 						}
 					}
 				} else {
-					playState.setTickPosition(playSettings.isReverseMode() ? z - 1 : z + 1);
-					//if(gMusicMain.getCManager().A_SHOW_WHILE_PLAYING) for(Player P : pl.keySet()) P.spigot().sendMessage(ChatMessageType.ACTION_BAR, anp);
+					playState.setTickPosition(playSettings.isReverseMode() ? position - 1 : position + 1);
+					if(gMusicMain.getConfigService().A_SHOW_WHILE_PLAYING && ticker[0] % 2000 == 0) {
+						for(Player player : playersInRange.keySet()) {
+							gMusicMain.getMessageService().sendActionBarMessage(
+								player,
+								"Messages.actionbar-play",
+								"%Song%", song.getId(),
+								"%SongTitle%", song.getTitle(),
+								"%Author%", song.getAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-author") : song.getAuthor(),
+								"%OriginalAuthor%", song.getOriginalAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-original-author") : song.getOriginalAuthor()
+							);
+						}
+					}
 				}
-			} else timer.cancel();
+			}
 		}, 0, 1);
 	}
 
@@ -246,9 +285,13 @@ public class JukeBoxService {
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 		playSettings.setCurrentSong(null);
 
-		if(gMusicMain.getConfigService().A_SHOW_MESSAGES && playSettings != null) {
-			//TextComponent anpc = new TextComponent(gMusicMain.getMManager().getMessage("Messages.actionbar-stop"));
-			//for(Player P : gMusicMain.getJukeBoxManager().getPlayersInRange(gMusicMain.getValues().getJukeBlocks().get(U), ps.getRange()).keySet()) P.spigot().sendMessage(ChatMessageType.ACTION_BAR, anpc);
+		if(gMusicMain.getConfigService().A_SHOW_MESSAGES) {
+			Block block = jukeBoxes.get(uuid);
+			if(block != null) {
+				for(Player player : getPlayersInRange(block.getLocation().add(0.5, 0, 0.5), playSettings.getRange()).keySet()) {
+					gMusicMain.getMessageService().sendActionBarMessage(player, "Messages.actionbar-stop");
+				}
+			}
 		}
 	}
 
@@ -261,8 +304,12 @@ public class JukeBoxService {
 
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 		if(gMusicMain.getConfigService().A_SHOW_MESSAGES && playSettings != null) {
-			//TextComponent anpc = new TextComponent(gMusicMain.getMManager().getMessage("Messages.actionbar-pause"));
-			//for(Player P : gMusicMain.getJukeBoxManager().getPlayersInRange(gMusicMain.getValues().getJukeBlocks().get(U), ps.getRange()).keySet()) P.spigot().sendMessage(ChatMessageType.ACTION_BAR, anpc);
+			Block block = jukeBoxes.get(uuid);
+			if(block != null) {
+				for(Player player : getPlayersInRange(block.getLocation().add(0.5, 0, 0.5), playSettings.getRange()).keySet()) {
+					gMusicMain.getMessageService().sendActionBarMessage(player, "Messages.actionbar-pause");
+				}
+			}
 		}
 	}
 
@@ -275,12 +322,15 @@ public class JukeBoxService {
 
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 		if(gMusicMain.getConfigService().A_SHOW_MESSAGES && playSettings != null) {
-			//TextComponent anpc = new TextComponent(gMusicMain.getMManager().getMessage("Messages.actionbar-resume"));
-			//for(Player P : gMusicMain.getJukeBoxManager().getPlayersInRange(gMusicMain.getValues().getJukeBlocks().get(U), ps.getRange()).keySet()) P.spigot().sendMessage(ChatMessageType.ACTION_BAR, anpc);
+			Block block = jukeBoxes.get(uuid);
+			if(block != null) {
+				for(Player player : getPlayersInRange(block.getLocation().add(0.5, 0, 0.5), playSettings.getRange()).keySet()) {
+					gMusicMain.getMessageService().sendActionBarMessage(player, "Messages.actionbar-resume");
+				}
+			}
 		}
 
 		playBoxTimer(uuid, playState.getSong(), playState.getTimer());
 	}
-
 
 }

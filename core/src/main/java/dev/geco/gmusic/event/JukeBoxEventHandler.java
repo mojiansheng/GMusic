@@ -25,11 +25,11 @@ public class JukeBoxEventHandler implements Listener {
 		this.gMusicMain = gMusicMain;
 	}
 
-	@EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = true)
+	@EventHandler (priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void playerInteractEvent(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 
-		if(event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+		if(event.getAction() != Action.RIGHT_CLICK_BLOCK || player.isSneaking()) return;
 
 		Block block = event.getClickedBlock();
 		if(block == null || block.getType() != Material.JUKEBOX) return;
@@ -39,7 +39,11 @@ public class JukeBoxEventHandler implements Listener {
 
 		event.setCancelled(true);
 
-		if(!gMusicMain.getPermissionService().hasPermission(player, "AMusic.UseJukeBox", "AMusic.*")) return;
+		if(!gMusicMain.getPermissionService().hasPermission(player, "JukeBox")) return;
+
+		if(!gMusicMain.getEnvironmentUtil().isEntityInAllowedWorld(player)) return;
+
+		if(!gMusicMain.getEnvironmentUtil().canUseJukeboxInLocation(block.getLocation(), player)) return;
 
 		if(!player.isSneaking()) player.openInventory(GMusicGUI.getMusicGUI(uuid).getInventory());
 	}

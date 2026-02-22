@@ -14,6 +14,7 @@ Messages:
   command-version-error: "[P]&c Veraltete Serverversion! (&b%Version%&c)\n[P]&c Aktualisiere den Server, um dieses Feature zu verwenden!"
 
   command-gmusic-use-error: "[P]&c /music play|playing|random|stop|pause|resume|skip|toggle"
+  command-gmusic-world-error: "[P]&c Du kannst in dieser Welt keine Musik spielen!"
   command-gmusic-song-error: "[P]&c Der Song&6 %Song%&c existiert nicht!"
   command-gmusic-no-song-error: "[P]&c There are no songs!"
   command-gmusic-play: "[P]&a Es spielt:&6 %SongTitle%"
@@ -23,6 +24,20 @@ Messages:
   command-gmusic-paused-error: "[P]&c Es ist aktuell kein Song pausiert!"
   command-gmusic-pause: "[P]&a Song pausiert."
   command-gmusic-resume: "[P]&a Song fortgesetzt."
+
+  command-gadminmusic-use-error: "[P]&c /adminmusic jukebox|disc|download|radio"
+  command-gadminmusic-target-error: "[P]&6 %Target%&c ist kein valides Ziel!"
+  command-gadminmusic-amount-error: "[P]&c %Amount%&c ist keine valide Anzahl!"
+  command-gadminmusic-jukebox-use-error: "[P]&c /adminmusic jukebox [<Spieler>] [<Anzahl>]"
+  command-gadminmusic-jukebox: "[P]&b %Amount% JukeBoxes zu&6 %Player%&a hinzugefügt."
+  command-gadminmusic-disc-use-error: "[P]&c /adminmusic disc <Song> [<Spieler>] [<Anzahl>]"
+  command-gadminmusic-disc: "[P]&b %Amount% Schallplatten zu&6 %Player%&a hinzugefügt."
+  command-gadminmusic-download-use-error: "[P]&c /adminmusic download <Typ> <Song> <Url>"
+  command-gadminmusic-download-type-error: "[P]&6 %Type%&c ist kein valider Download-Typ!"
+  command-gadminmusic-download-filename-error: "[P]&6 %Filename%&c existiert bereits!"
+  command-gadminmusic-download-error: "[P]&c Beim Herunterladen ist ein Fehler aufgetreten!"
+  command-gadminmusic-download: "[P]&6 %Filename%&a erfolgreich heruntergeladen."
+
   actionbar-play: "&aEs spielt:&6 %SongTitle%"
   actionbar-playing: "&aEs spielt:&6 %SongTitle%"
   actionbar-stop: "&aSong beendet"
@@ -31,6 +46,7 @@ Messages:
 
 MusicGUI:
   title: "&cJukebox"
+  radio-title: "&cRadio"
 
   music-pause: "&6Pause"
   music-resume: "&6Weiter"
@@ -66,9 +82,12 @@ MusicGUI:
 
   disc-title: "&b%Title%&7 -&6 %OAuthor%"
   disc-empty-author: "Unbekannt"
-  disc-empty-oauthor: "Unbekannt"
+  disc-empty-original-author: "Unbekannt"
   disc-favorite: "&cFavorit"
 
 Items:
   jukebox-title: "&cJukeBox"
-  jukebox-description: "&aJukeBox, die spezielle Musik spielt!"
+  jukebox-description: "&aEine JukeBox, die spezielle Musik spielt!"
+
+  disc-title: "&cSchallplatte&6 %SongTitle%"
+  disc-description: "&aEine Schallplatte, die spezielle Musik spielt!"

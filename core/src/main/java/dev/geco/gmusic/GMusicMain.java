@@ -8,11 +8,16 @@ import dev.geco.gmusic.cmd.GMusicReloadCommand;
 import dev.geco.gmusic.cmd.tab.EmptyTabComplete;
 import dev.geco.gmusic.cmd.tab.GAdminMusicTabComplete;
 import dev.geco.gmusic.cmd.tab.GMusicTabComplete;
+import dev.geco.gmusic.event.DiscEventHandler;
 import dev.geco.gmusic.event.JukeBoxEventHandler;
 import dev.geco.gmusic.event.PlayerEventHandler;
+import dev.geco.gmusic.link.GriefPreventionLink;
+import dev.geco.gmusic.link.PlotSquaredLink;
+import dev.geco.gmusic.link.WorldGuardLink;
 import dev.geco.gmusic.metric.BStatsMetric;
 import dev.geco.gmusic.service.ConfigService;
 import dev.geco.gmusic.service.DataService;
+import dev.geco.gmusic.service.DiscService;
 import dev.geco.gmusic.service.JukeBoxService;
 import dev.geco.gmusic.service.MessageService;
 import dev.geco.gmusic.service.converter.MidiConverter;
@@ -31,6 +36,7 @@ import dev.geco.gmusic.util.EnvironmentUtil;
 import dev.geco.gmusic.util.SteroNoteUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
@@ -53,11 +59,15 @@ public class GMusicMain extends JavaPlugin {
     private PlayService playService;
     private PlaySettingsService playSettingsService;
     private JukeBoxService jukeBoxService;
+    private DiscService discService;
     private RadioService radioService;
     private MidiConverter midiConverter;
     private NBSConverter nbsConverter;
     private EnvironmentUtil environmentUtil;
     private SteroNoteUtil steroNoteUtil;
+    private GriefPreventionLink griefPreventionLink;
+    private PlotSquaredLink plotSquaredLink;
+    private WorldGuardLink worldGuardLink;
     private BStatsMetric bStatsMetric;
     private boolean supportsTaskFeature = false;
     private boolean isPaperServer = false;
@@ -87,6 +97,8 @@ public class GMusicMain extends JavaPlugin {
 
     public JukeBoxService getJukeBoxService() { return jukeBoxService; }
 
+    public DiscService getDiscService() { return discService; }
+
     public RadioService getRadioService() { return radioService; }
 
     public MidiConverter getMidiConverter() { return midiConverter; }
@@ -96,6 +108,12 @@ public class GMusicMain extends JavaPlugin {
     public EnvironmentUtil getEnvironmentUtil() { return environmentUtil; }
 
     public SteroNoteUtil getSteroNoteUtil() { return steroNoteUtil; }
+
+    public GriefPreventionLink getGriefPreventionLink() { return griefPreventionLink; }
+
+    public PlotSquaredLink getPlotSquaredLink() { return plotSquaredLink; }
+
+    public WorldGuardLink getWorldGuardLink() { return worldGuardLink; }
 
     public boolean supportsTaskFeature() { return supportsTaskFeature; }
 
@@ -117,12 +135,13 @@ public class GMusicMain extends JavaPlugin {
         playService = new PlayService(this);
         playSettingsService = new PlaySettingsService(this);
         jukeBoxService = new JukeBoxService(this);
+        discService =  new DiscService(this);
         radioService = new RadioService(this);
 
         midiConverter = new MidiConverter(this);
         nbsConverter = new NBSConverter(this);
 
-        environmentUtil = new EnvironmentUtil();
+        environmentUtil = new EnvironmentUtil(this);
         steroNoteUtil = new SteroNoteUtil();
 
         loadFeatures();
@@ -185,6 +204,8 @@ public class GMusicMain extends JavaPlugin {
         radioService.stopRadio();
         songService.unloadSongs();
         playSettingsService.savePlaySettings();
+
+        if(worldGuardLink != null) worldGuardLink.unregisterFlagHandlers();
     }
 
     private void setupCommands() {
@@ -202,6 +223,7 @@ public class GMusicMain extends JavaPlugin {
     private void setupEvents() {
         getServer().getPluginManager().registerEvents(new PlayerEventHandler(this), this);
         getServer().getPluginManager().registerEvents(new JukeBoxEventHandler(this), this);
+        getServer().getPluginManager().registerEvents(new DiscEventHandler(this), this);
     }
 
     private boolean versionCheck() {
@@ -235,11 +257,39 @@ public class GMusicMain extends JavaPlugin {
             Class.forName("io.papermc.paper.threadedregions.RegionizedServerInitEvent");
             isFoliaServer = true;
         } catch(ClassNotFoundException e) { isFoliaServer = false; }
+
+        if(Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
+            worldGuardLink = new WorldGuardLink();
+            worldGuardLink.registerFlags();
+        }
     }
 
-    private void loadPluginDependencies() { }
+    private void loadPluginDependencies() {
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("GriefPrevention");
+        if(plugin != null && plugin.isEnabled() && configService.TRUSTED_REGION_ONLY) griefPreventionLink = new GriefPreventionLink(this);
+        else griefPreventionLink = null;
 
-    private void printPluginLinks(CommandSender sender) { }
+        plugin = Bukkit.getPluginManager().getPlugin("PlotSquared");
+        if(plugin != null && plugin.isEnabled() && configService.TRUSTED_REGION_ONLY) {
+            plotSquaredLink = new PlotSquaredLink(this);
+            if(!plotSquaredLink.isPlotSquaredVersionSupported()) plotSquaredLink = null;
+        } else plotSquaredLink = null;
+
+        plugin = Bukkit.getPluginManager().getPlugin("WorldGuard");
+        if(plugin != null && plugin.isEnabled()) {
+            if(worldGuardLink == null) {
+                worldGuardLink = new WorldGuardLink();
+                worldGuardLink.registerFlags();
+            }
+            worldGuardLink.registerFlagHandlers();
+        } else worldGuardLink = null;
+    }
+
+    private void printPluginLinks(CommandSender sender) {
+        if(griefPreventionLink != null) messageService.sendMessage(sender, "Plugin.plugin-link", "%Link%", Bukkit.getPluginManager().getPlugin("GriefPrevention").getName());
+        if(plotSquaredLink != null) messageService.sendMessage(sender, "Plugin.plugin-link", "%Link%", Bukkit.getPluginManager().getPlugin("PlotSquared").getName());
+        if(worldGuardLink != null) messageService.sendMessage(sender, "Plugin.plugin-link", "%Link%", Bukkit.getPluginManager().getPlugin("WorldGuard").getName());
+    }
 
     private void setupBStatsMetric() {
         bStatsMetric = new BStatsMetric(this, BSTATS_RESOURCE_ID);

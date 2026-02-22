@@ -64,16 +64,15 @@ public class PlaySettingsService {
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not load play settings", e); }
 
 		if(playSettings == null) playSettings = generateDefaultPlaySettings(uuid);
+		else playSettingsCache.put(uuid, playSettings);
 
 		playSettings.setFavorites(favorites);
-
-		playSettingsCache.put(uuid, playSettings);
 
 		return playSettings;
 	}
 
-	private GPlaySettings generateDefaultPlaySettings(UUID uuid) {
-		return new GPlaySettings(
+	public GPlaySettings generateDefaultPlaySettings(UUID uuid) {
+		GPlaySettings playSettings = new GPlaySettings(
 				uuid,
 				GPlayListMode.byId(gMusicMain.getConfigService().PS_D_PLAYLIST_MODE),
 				gMusicMain.getConfigService().PS_D_VOLUME,
@@ -86,6 +85,10 @@ public class PlaySettingsService {
 				null,
 				new ArrayList<>()
 		);
+
+		playSettingsCache.put(uuid, playSettings);
+
+		return playSettings;
 	}
 
 	public void savePlaySettings(UUID uuid, GPlaySettings playSettings) {

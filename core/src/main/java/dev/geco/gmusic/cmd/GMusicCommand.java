@@ -30,6 +30,11 @@ public class GMusicCommand implements CommandExecutor {
             return true;
         }
 
+        if(!gMusicMain.getEnvironmentUtil().isEntityInAllowedWorld(player)) {
+            gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-world-error");
+            return true;
+        }
+
         if(args.length == 0) {
             GMusicGUI musicGUI = new GMusicGUI(player.getUniqueId(), GMusicGUI.MenuType.DEFAULT);
             player.openInventory(musicGUI.getInventory());

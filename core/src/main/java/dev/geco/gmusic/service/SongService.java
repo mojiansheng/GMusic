@@ -2,19 +2,23 @@ package dev.geco.gmusic.service;
 
 import dev.geco.gmusic.GMusicMain;
 import dev.geco.gmusic.object.GSong;
-import org.bukkit.Material;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
 public class SongService {
 
+    public static final String GNBS_EXTENSION = "gnbs";
+    public static final String NBS_EXTENSION = "nbs";
+    public static final String MIDI_EXTENSION = "midi";
+    public static final String MID_EXTENSION = "mid";
+    public static final String GNBS_FOLDER = "gnbs";
+    public static final String CONVERT_FOLDER = "convert";
+
     private final GMusicMain gMusicMain;
-    private static final List<Material> DISCS = Arrays.stream(Material.values()).filter(disc -> disc.name().contains("_DISC_")).toList();
     private final TreeMap<String, GSong> songs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public SongService(GMusicMain gMusicMain) {
@@ -30,28 +34,32 @@ public class SongService {
     public void loadSongs() {
         unloadSongs();
 
-        convertAllSongs();
+        convertSongs();
 
-        File songsDir = new File(gMusicMain.getDataFolder(), "songs");
-        if(!songsDir.exists()) return;
+        File gnbsDir = new File(gMusicMain.getDataFolder(), GNBS_FOLDER);
+        if(!gnbsDir.exists()) return;
 
-        File[] songFiles = songsDir.listFiles();
+        File[] songFiles = gnbsDir.listFiles();
         if(songFiles == null) return;
-        for(File file : songFiles) {
-            int extensionPos = file.getName().lastIndexOf(".");
-            if(extensionPos <= 0 || !file.getName().substring(extensionPos + 1).equalsIgnoreCase("gnbs")) return;
+        for(File file : songFiles) loadSongFile(file);
+    }
 
-            try {
-                GSong song = new GSong(file);
-                if(song.getNoteAmount() == 0) {
-                    gMusicMain.getLogger().warning("Could not load song '" + file.getName().substring(0, extensionPos) + "', no notes found");
-                    continue;
-                }
+    public boolean loadSongFile(File file) {
+        int extensionPos = file.getName().lastIndexOf(".");
+        if(extensionPos <= 0 || !file.getName().substring(extensionPos + 1).equalsIgnoreCase(GNBS_EXTENSION)) return false;
 
-                songs.put(song.getId().toLowerCase(), song);
-            } catch(Throwable e) {
-                gMusicMain.getLogger().log(Level.WARNING, "Could not load song '" + file.getName().substring(0, extensionPos) + "'", e);
+        try {
+            GSong song = new GSong(file);
+            if(song.getNoteAmount() == 0) {
+                gMusicMain.getLogger().warning("Could not load " + GNBS_EXTENSION + " music '" + file.getName().substring(0, extensionPos) + "', no notes found");
+                return false;
             }
+
+            songs.put(song.getId().toLowerCase(), song);
+            return true;
+        } catch(Throwable e) {
+            gMusicMain.getLogger().log(Level.WARNING, "Could not load " + GNBS_EXTENSION + " music '" + file.getName().substring(0, extensionPos) + "'", e);
+            return false;
         }
     }
 
@@ -59,41 +67,46 @@ public class SongService {
         songs.clear();
     }
 
-    private void convertAllSongs() {
-        File songsDir = new File(gMusicMain.getDataFolder(), "songs");
-        if(!songsDir.exists() && !songsDir.mkdir()) {
-            gMusicMain.getLogger().severe("Could not create 'songs' directory!");
+    public void convertSongs() {
+        File gnbsDir = new File(gMusicMain.getDataFolder(), GNBS_FOLDER);
+        if(!gnbsDir.exists() && !gnbsDir.mkdir()) {
+            gMusicMain.getLogger().severe("Could not create '" + GNBS_FOLDER + "' directory!");
             return;
         }
 
-        File nbsDir = new File(gMusicMain.getDataFolder(), "nbs");
-        if(!nbsDir.exists() && !nbsDir.mkdir()) {
-            gMusicMain.getLogger().severe("Could not create 'nbs' directory!");
+        File convertDir = new File(gMusicMain.getDataFolder(), CONVERT_FOLDER);
+        if(!convertDir.exists() && !convertDir.mkdir()) {
+            gMusicMain.getLogger().severe("Could not create '" + CONVERT_FOLDER + "' directory!");
             return;
         }
 
-        File midiDir = new File(gMusicMain.getDataFolder(), "midi");
-        if(!midiDir.exists() && !midiDir.mkdir()) {
-            gMusicMain.getLogger().severe("Could not create 'midi' directory!");
-            return;
-        }
+        File[] convertFiles = convertDir.listFiles();
+        if(convertFiles == null) return;
 
-        File[] nbsFiles = nbsDir.listFiles();
-        if(nbsFiles != null) {
-            for(File file : nbsFiles) {
-                File songFile = new File(songsDir.getAbsolutePath() + "/" + file.getName().replaceFirst("[.][^.]+$", "") + ".gnbs");
-                if(songFile.exists()) continue;
-                gMusicMain.getNBSConverter().convertNBSFile(file);
+        for(File file : convertFiles) convertSongFile(file);
+    }
+
+    public File convertSongFile(File file) {
+        File gnbsDir = new File(gMusicMain.getDataFolder(), GNBS_FOLDER);
+
+        File gnbsFile = new File(gnbsDir.getAbsolutePath() + "/" + file.getName().replaceFirst("[.][^.]+$", "") + "." + GNBS_EXTENSION);
+        if(gnbsFile.exists()) return gnbsFile;
+
+        String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+        switch(extension.toLowerCase()) {
+            case NBS_EXTENSION: {
+                if(gMusicMain.getNBSConverter().convertNBSFile(file)) return gnbsFile;
+                return null;
             }
+            case MID_EXTENSION:
+            case MIDI_EXTENSION:
+                if(gMusicMain.getMidiConverter().convertMidiFile(file)) return gnbsFile;
+                return null;
+            default:
+                gMusicMain.getLogger().warning("Invalid convert extension: " + extension);
         }
 
-        File[] midiFiles = midiDir.listFiles();
-        if(midiFiles == null) return;
-        for(File file : midiFiles) {
-            File songFile = new File(songsDir.getAbsolutePath() + "/" + file.getName().replaceFirst("[.][^.]+$", "") + ".gnbs");
-            if(songFile.exists()) continue;
-            gMusicMain.getMidiConverter().convertMidiFile(file);
-        }
+        return null;
     }
 
 }

@@ -10,6 +10,7 @@ import com.sk89q.worldguard.session.Session;
 import com.sk89q.worldguard.session.handler.Handler;
 import dev.geco.gmusic.GMusicMain;
 import dev.geco.gmusic.link.WorldGuardLink;
+import dev.geco.gmusic.model.PlaySettings;
 import dev.geco.gmusic.model.Song;
 import org.bukkit.entity.Player;
 
@@ -48,6 +49,9 @@ public class RegionFlagHandler extends Handler {
         if(song == null) return true;
 
         Player player = BukkitAdapter.adapt(localPlayer);
+        PlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(player.getUniqueId());
+        if(playSettings.isToggleMode()) return true;
+
         gMusicMain.getPlayService().playSong(player, song);
 
         return true;

@@ -2,6 +2,8 @@ package dev.geco.gmusic.service;
 
 import dev.geco.gmusic.GMusicMain;
 import dev.geco.gmusic.object.GSong;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,9 +29,9 @@ public class SongService {
 
     public List<GSong> getSongs() { return new ArrayList<>(songs.values()); }
 
-    public GSong getSongById(String song) { return songs.get(song.toLowerCase()); }
+    public @Nullable GSong getSongById(@NotNull String song) { return songs.get(song.toLowerCase()); }
 
-    public List<GSong> filterSongsBySearch(List<GSong> songs, String search) { return songs.stream().filter(song -> song.getTitle().toLowerCase().contains(search.toLowerCase())).toList(); }
+    public List<GSong> filterSongsBySearch(@NotNull List<GSong> songs, @NotNull String search) { return songs.stream().filter(song -> song.getTitle().toLowerCase().contains(search.toLowerCase())).toList(); }
 
     public void loadSongs() {
         unloadSongs();
@@ -44,7 +46,7 @@ public class SongService {
         for(File file : songFiles) loadSongFile(file);
     }
 
-    public boolean loadSongFile(File file) {
+    public boolean loadSongFile(@NotNull File file) {
         int extensionPos = file.getName().lastIndexOf(".");
         if(extensionPos <= 0 || !file.getName().substring(extensionPos + 1).equalsIgnoreCase(GNBS_EXTENSION)) return false;
 
@@ -86,7 +88,7 @@ public class SongService {
         for(File file : convertFiles) convertSongFile(file);
     }
 
-    public File convertSongFile(File file) {
+    public @Nullable File convertSongFile(@NotNull File file) {
         File gnbsDir = new File(gMusicMain.getDataFolder(), GNBS_FOLDER);
 
         File gnbsFile = new File(gnbsDir.getAbsolutePath() + "/" + file.getName().replaceFirst("[.][^.]+$", "") + "." + GNBS_EXTENSION);

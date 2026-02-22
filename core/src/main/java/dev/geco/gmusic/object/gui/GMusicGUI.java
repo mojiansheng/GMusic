@@ -494,7 +494,8 @@ public class GMusicGUI {
 				ItemMeta itemMeta = itemStack.getItemMeta();
 				itemMeta.setDisplayName(gMusicMain.getMessageService().getMessage(
 						"MusicGUI.disc-title",
-						"%Title%", song.getTitle(),
+						"%Song%", song.getId(),
+						"%SongTitle%", song.getTitle(),
 						"%Author%", song.getAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-author") : song.getAuthor(),
 						"%OriginalAuthor%", song.getOriginalAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-original-author") : song.getOriginalAuthor()
 				));

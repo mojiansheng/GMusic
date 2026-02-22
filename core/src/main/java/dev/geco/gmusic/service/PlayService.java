@@ -12,6 +12,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +33,9 @@ public class PlayService {
 		this.gMusicMain = gMusicMain;
 	}
 
-	public void playSong(Player player, GSong song) { playSong(player, song, 0); }
+	public void playSong(@NotNull Player player, @Nullable GSong song) { playSong(player, song, 0); }
 
-	private void playSong(Player player, GSong song, long delay) {
+	private void playSong(@NotNull Player player, @Nullable GSong song, long delay) {
 		if(song == null) return;
 
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(player.getUniqueId());
@@ -62,19 +64,19 @@ public class PlayService {
 		startSong(player, song, timer);
 	}
 
-	public GSong getRandomSong(UUID uuid) {
+	public @Nullable GSong getRandomSong(@NotNull UUID uuid) {
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 		List<GSong> songs = playSettings.getPlayListMode() == GPlayListMode.FAVORITES ? playSettings.getFavorites() : gMusicMain.getSongService().getSongs();
 		return !songs.isEmpty() ? songs.get(random.nextInt(songs.size())) : null;
 	}
 
-	public GSong getShuffleSong(UUID uuid, GSong song) {
+	public @Nullable GSong getShuffleSong(@NotNull UUID uuid, @NotNull GSong song) {
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 		List<GSong> songs = playSettings.getPlayListMode() == GPlayListMode.FAVORITES ? playSettings.getFavorites() : gMusicMain.getSongService().getSongs();
 		return !songs.isEmpty() ? songs.indexOf(song) + 1 == songs.size() ? songs.get(0) : songs.get(songs.indexOf(song) + 1) : null;
 	}
 
-	private void startSong(Player player, GSong song, Timer timer) {
+	private void startSong(@NotNull Player player, @NotNull GSong song, @NotNull Timer timer) {
 		UUID uuid = player.getUniqueId();
 		GPlayState playState = getPlayState(uuid);
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(player.getUniqueId());
@@ -141,25 +143,25 @@ public class PlayService {
 		}, 0, 1);
 	}
 
-	public GPlayState getPlayState(UUID uuid) { return playStates.get(uuid); }
+	public @Nullable GPlayState getPlayState(@NotNull UUID uuid) { return playStates.get(uuid); }
 
-	public void removePlayState(UUID uuid) { playStates.remove(uuid); }
+	public void removePlayState(@NotNull UUID uuid) { playStates.remove(uuid); }
 
-	public void setPlayState(UUID uuid, GPlayState playState) { playStates.put(uuid, playState); }
+	public void setPlayState(@NotNull UUID uuid, @NotNull GPlayState playState) { playStates.put(uuid, playState); }
 
-	public boolean hasPlayingSong(UUID uuid) { return getPlayState(uuid) != null; }
+	public boolean hasPlayingSong(@NotNull UUID uuid) { return getPlayState(uuid) != null; }
 
-	public boolean hasPausedSong(UUID uuid) {
+	public boolean hasPausedSong(@NotNull UUID uuid) {
 		GPlayState playState = getPlayState(uuid);
 		return playState != null && playState.isPaused();
 	}
 
-	public GSong getPlayingSong(UUID uuid) {
+	public @Nullable GSong getPlayingSong(@NotNull UUID uuid) {
 		GPlayState playState = getPlayState(uuid);
 		return playState != null ? playState.getSong() : null;
 	}
 
-	public GSong getNextSong(Player player) {
+	public @Nullable GSong getNextSong(@NotNull Player player) {
 		GPlayState playState = getPlayState(player.getUniqueId());
 		return playState != null ? getShuffleSong(player.getUniqueId(), playState.getSong()) : getRandomSong(player.getUniqueId());
 	}
@@ -178,7 +180,7 @@ public class PlayService {
 		playStates.clear();
 	}
 
-	public void stopSong(Player player) {
+	public void stopSong(@NotNull Player player) {
 		GPlayState playState = getPlayState(player.getUniqueId());
 		if(playState == null) return;
 
@@ -192,7 +194,7 @@ public class PlayService {
 		if(gMusicMain.getConfigService().A_SHOW_MESSAGES) gMusicMain.getMessageService().sendActionBarMessage(player, "Messages.actionbar-stop");
 	}
 
-	public void pauseSong(Player player) {
+	public void pauseSong(@NotNull Player player) {
 		GPlayState playState = getPlayState(player.getUniqueId());
 		if(playState == null) return;
 
@@ -202,7 +204,7 @@ public class PlayService {
 		if(gMusicMain.getConfigService().A_SHOW_MESSAGES) gMusicMain.getMessageService().sendActionBarMessage(player, "Messages.actionbar-pause");
 	}
 
-	public void resumeSong(Player player) {
+	public void resumeSong(@NotNull Player player) {
 		GPlayState playState = getPlayState(player.getUniqueId());
 		if(playState == null) return;
 

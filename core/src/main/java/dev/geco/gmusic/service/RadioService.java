@@ -12,6 +12,8 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,11 +55,11 @@ public class RadioService {
 		new GMusicGUI(radioUUID, GMusicGUI.MenuType.RADIO);
 	}
 
-	public UUID getRadioUUID() { return radioUUID; }
+	public @NotNull UUID getRadioUUID() { return radioUUID; }
 
-	public void playSong(GSong song) { playSong(song, 0); }
+	public void playSong(@Nullable GSong song) { playSong(song, 0); }
 
-	public void playSong(GSong song, long delay) {
+	public void playSong(@Nullable GSong song, long delay) {
 		if(song == null) return;
 
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(radioUUID);
@@ -93,7 +95,7 @@ public class RadioService {
 		playTimer(song, timer);
 	}
 
-	private void playTimer(GSong song, Timer timer) {
+	private void playTimer(@NotNull GSong song, @NotNull Timer timer) {
 		GPlayState playState = gMusicMain.getPlayService().getPlayState(radioUUID);
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(radioUUID);
 
@@ -185,7 +187,7 @@ public class RadioService {
 								"%Song%", song.getId(),
 								"%SongTitle%", song.getTitle(),
 								"%Author%", song.getAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-author") : song.getAuthor(),
-								"%OAuthor%", song.getOriginalAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-oauthor") : song.getOriginalAuthor()
+								"%OriginalAuthor%", song.getOriginalAuthor().isEmpty() ? gMusicMain.getMessageService().getMessage("MusicGUI.disc-empty-original-author") : song.getOriginalAuthor()
 							);
 						}
 					}
@@ -278,12 +280,12 @@ public class RadioService {
 		playTimer(playState.getSong(), playState.getTimer());
 	}
 
-	public void removeRadioPlayer(Player Player) { radioPlayers.remove(Player); }
+	public void removeRadioPlayer(@NotNull Player Player) { radioPlayers.remove(Player); }
 
-	public void addRadioPlayer(Player Player) { radioPlayers.add(Player); }
+	public void addRadioPlayer(@NotNull Player Player) { radioPlayers.add(Player); }
 
-	public void removeRadioJukeBox(UUID uuid) { radioJukeBoxBlocks.remove(uuid); }
+	public void removeRadioJukeBox(@NotNull UUID uuid) { radioJukeBoxBlocks.remove(uuid); }
 
-	public void addRadioJukeBox(UUID uuid, Block block) { radioJukeBoxBlocks.put(uuid, block); }
+	public void addRadioJukeBox(@NotNull UUID uuid, @NotNull Block block) { radioJukeBoxBlocks.put(uuid, block); }
 
 }

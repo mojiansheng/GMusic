@@ -9,6 +9,7 @@ dependencies {
         exclude("com.google.code.gson", "gson")
         exclude("it.unimi.dsi", "fastutil")
     }
+    compileOnly("me.clip:placeholderapi:2.12.2")
     compileOnly("com.github.GriefPrevention:GriefPrevention:18.0.0")
     compileOnly("com.intellectualsites.plotsquared:plotsquared-core:7.5.11")
 }

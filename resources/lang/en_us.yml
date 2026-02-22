@@ -80,7 +80,7 @@ MusicGUI:
   last-page: "&6Previous page"
   next-page: "&6Next page"
 
-  disc-title: "&b%Title%&7 -&6 %OriginalAuthor%"
+  disc-title: "&b%SongTitle%&7 -&6 %OriginalAuthor%"
   disc-empty-author: "Unknown"
   disc-empty-original-author: "Unknown"
   disc-favorite: "&cFavorite"
@@ -89,5 +89,5 @@ Items:
   jukebox-title: "&cJukeBox"
   jukebox-description: "&aA JukeBox, which plays special music!"
 
-  disc-title: "&cDisc&6 %SongTitle%"
+  disc-title: "&b%SongTitle%&7 -&6 %OriginalAuthor%"
   disc-description: "&aA Disc, which plays special music!"

@@ -5,6 +5,8 @@ import dev.geco.gmusic.object.GPlaySettings;
 import dev.geco.gmusic.object.GSong;
 import dev.geco.gmusic.object.GPlayListMode;
 import dev.geco.gmusic.object.GPlayMode;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ public class PlaySettingsService {
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not create play settings database tables!", e); }
 	}
 
-	public GPlaySettings getPlaySettings(UUID uuid) {
+	public @NotNull GPlaySettings getPlaySettings(@NotNull UUID uuid) {
 		if(playSettingsCache.containsKey(uuid)) return playSettingsCache.get(uuid);
 
 		List<GSong> favorites = new ArrayList<>();
@@ -71,7 +73,7 @@ public class PlaySettingsService {
 		return playSettings;
 	}
 
-	public GPlaySettings generateDefaultPlaySettings(UUID uuid) {
+	public @NotNull GPlaySettings generateDefaultPlaySettings(@NotNull UUID uuid) {
 		GPlaySettings playSettings = new GPlaySettings(
 				uuid,
 				GPlayListMode.byId(gMusicMain.getConfigService().PS_D_PLAYLIST_MODE),
@@ -91,7 +93,7 @@ public class PlaySettingsService {
 		return playSettings;
 	}
 
-	public void savePlaySettings(UUID uuid, GPlaySettings playSettings) {
+	public void savePlaySettings(@NotNull UUID uuid, @Nullable GPlaySettings playSettings) {
 		try {
 			gMusicMain.getDataService().execute("DELETE FROM gmusic_play_settings WHERE uuid = ?", uuid.toString());
 			gMusicMain.getDataService().execute("DELETE FROM gmusic_play_settings_favorites WHERE uuid = ?", uuid.toString());
@@ -132,6 +134,6 @@ public class PlaySettingsService {
 		playSettingsCache.clear();
 	}
 
-	public void removePlaySettingsCache(UUID uuid) { playSettingsCache.remove(uuid); }
+	public void removePlaySettingsCache(@NotNull UUID uuid) { playSettingsCache.remove(uuid); }
 
 }

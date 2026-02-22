@@ -12,6 +12,7 @@ import dev.geco.gmusic.event.DiscEventHandler;
 import dev.geco.gmusic.event.JukeBoxEventHandler;
 import dev.geco.gmusic.event.PlayerEventHandler;
 import dev.geco.gmusic.link.GriefPreventionLink;
+import dev.geco.gmusic.link.PlaceholderAPILink;
 import dev.geco.gmusic.link.PlotSquaredLink;
 import dev.geco.gmusic.link.WorldGuardLink;
 import dev.geco.gmusic.metric.BStatsMetric;
@@ -66,6 +67,7 @@ public class GMusicMain extends JavaPlugin {
     private EnvironmentUtil environmentUtil;
     private SteroNoteUtil steroNoteUtil;
     private GriefPreventionLink griefPreventionLink;
+    private PlaceholderAPILink placeholderAPILink;
     private PlotSquaredLink plotSquaredLink;
     private WorldGuardLink worldGuardLink;
     private BStatsMetric bStatsMetric;
@@ -110,6 +112,8 @@ public class GMusicMain extends JavaPlugin {
     public SteroNoteUtil getSteroNoteUtil() { return steroNoteUtil; }
 
     public GriefPreventionLink getGriefPreventionLink() { return griefPreventionLink; }
+
+    public PlaceholderAPILink getPlaceholderAPILink() { return placeholderAPILink; }
 
     public PlotSquaredLink getPlotSquaredLink() { return plotSquaredLink; }
 
@@ -205,6 +209,7 @@ public class GMusicMain extends JavaPlugin {
         songService.unloadSongs();
         playSettingsService.savePlaySettings();
 
+        if(placeholderAPILink != null) placeholderAPILink.unregister();
         if(worldGuardLink != null) worldGuardLink.unregisterFlagHandlers();
     }
 
@@ -269,6 +274,12 @@ public class GMusicMain extends JavaPlugin {
         if(plugin != null && plugin.isEnabled() && configService.TRUSTED_REGION_ONLY) griefPreventionLink = new GriefPreventionLink(this);
         else griefPreventionLink = null;
 
+        plugin = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
+        if(plugin != null && plugin.isEnabled()) {
+            placeholderAPILink = new PlaceholderAPILink(this);
+            placeholderAPILink.register();
+        } else placeholderAPILink = null;
+
         plugin = Bukkit.getPluginManager().getPlugin("PlotSquared");
         if(plugin != null && plugin.isEnabled() && configService.TRUSTED_REGION_ONLY) {
             plotSquaredLink = new PlotSquaredLink(this);
@@ -287,6 +298,7 @@ public class GMusicMain extends JavaPlugin {
 
     private void printPluginLinks(CommandSender sender) {
         if(griefPreventionLink != null) messageService.sendMessage(sender, "Plugin.plugin-link", "%Link%", Bukkit.getPluginManager().getPlugin("GriefPrevention").getName());
+        if(placeholderAPILink != null) messageService.sendMessage(sender, "Plugin.plugin-link", "%Link%", Bukkit.getPluginManager().getPlugin("PlaceholderAPI").getName());
         if(plotSquaredLink != null) messageService.sendMessage(sender, "Plugin.plugin-link", "%Link%", Bukkit.getPluginManager().getPlugin("PlotSquared").getName());
         if(worldGuardLink != null) messageService.sendMessage(sender, "Plugin.plugin-link", "%Link%", Bukkit.getPluginManager().getPlugin("WorldGuard").getName());
     }

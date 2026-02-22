@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -20,9 +21,9 @@ public class DiscService {
 		discKey = new NamespacedKey(gMusicMain, GMusicMain.NAME + "_disc");
 	}
 
-	public NamespacedKey getDiscKey() { return discKey; }
+	public @NotNull NamespacedKey getDiscKey() { return discKey; }
 
-	public ItemStack createDiscItem(GSong song) {
+	public @NotNull ItemStack createDiscItem(@NotNull GSong song) {
 		ItemStack itemStack = new ItemStack(song.getDiscMaterial());
 		itemStack.setAmount(1);
 		ItemMeta itemMeta = itemStack.getItemMeta();

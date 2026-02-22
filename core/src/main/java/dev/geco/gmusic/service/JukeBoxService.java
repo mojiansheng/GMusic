@@ -20,6 +20,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -49,9 +51,9 @@ public class JukeBoxService {
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not create juke box database tables!", e); }
 	}
 
-	public NamespacedKey getJukeBoxKey() { return jukeBoxKey; }
+	public @NotNull NamespacedKey getJukeBoxKey() { return jukeBoxKey; }
 
-	public ItemStack createJukeBoxItem() {
+	public @NotNull ItemStack createJukeBoxItem() {
 		ItemStack itemStack = new ItemStack(Material.JUKEBOX);
 		itemStack.setAmount(1);
 		ItemMeta itemMeta = itemStack.getItemMeta();
@@ -63,15 +65,15 @@ public class JukeBoxService {
 		return itemStack;
 	}
 
-	public UUID getJukeBoxId(Block block) { return jukeBoxBlocks.get(block); }
+	public @Nullable UUID getJukeBoxId(Block block) { return jukeBoxBlocks.get(block); }
 
-	public Block getJukeBoxBlock(UUID uuid) { return jukeBoxes.get(uuid); }
+	public @Nullable Block getJukeBoxBlock(@NotNull UUID uuid) { return jukeBoxes.get(uuid); }
 
-	public void addTemporaryJukeBoxBlock(UUID uuid, Block block) { jukeBoxes.put(uuid, block); }
+	public void addTemporaryJukeBoxBlock(@NotNull UUID uuid, @NotNull Block block) { jukeBoxes.put(uuid, block); }
 
-	public void removeTemporaryJukeBoxBlock(UUID uuid) { jukeBoxes.remove(uuid); }
+	public void removeTemporaryJukeBoxBlock(@NotNull UUID uuid) { jukeBoxes.remove(uuid); }
 
-	public void loadJukeboxes(World world) {
+	public void loadJukeboxes(@NotNull World world) {
 		jukeBoxBlocks.clear();
 		jukeBoxes.clear();
 		gMusicMain.getTaskService().runDelayed(() -> {
@@ -112,7 +114,7 @@ public class JukeBoxService {
 		}, 0);
 	}
 
-	public void setJukebox(Block block) {
+	public void setJukebox(@NotNull Block block) {
 		try {
 			UUID uuid = UUID.randomUUID();
 			gMusicMain.getDataService().execute("INSERT INTO gmusic_juke_box (uuid, world, x, y, z) VALUES (?, ?, ?, ?, ?)",
@@ -131,7 +133,7 @@ public class JukeBoxService {
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not set jukebox", e); }
 	}
 
-	public void removeJukebox(Block block) {
+	public void removeJukebox(@NotNull Block block) {
 		UUID uuid = jukeBoxBlocks.get(block);
 		if(uuid == null) return;
 		stopBoxSong(uuid);
@@ -145,7 +147,7 @@ public class JukeBoxService {
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not remove jukebox", e); }
 	}
 
-	public HashMap<Player, Double> getPlayersInRange(Location location, long range) {
+	public HashMap<Player, Double> getPlayersInRange(@NotNull Location location, long range) {
 		HashMap<Player, Double> playerRangeMap = new HashMap<>();
 		try {
 			for(Player player : location.getWorld().getPlayers()) {
@@ -157,9 +159,9 @@ public class JukeBoxService {
 		return playerRangeMap;
 	}
 
-	public void playBoxSong(UUID uuid, GSong song) { playBoxSong(uuid, song, 0); }
+	public void playBoxSong(@NotNull UUID uuid, @Nullable GSong song) { playBoxSong(uuid, song, 0); }
 
-	private void playBoxSong(UUID uuid, GSong song, long delay) {
+	private void playBoxSong(@NotNull UUID uuid, @Nullable GSong song, long delay) {
 		if(song == null) return;
 
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
@@ -192,7 +194,7 @@ public class JukeBoxService {
 		playBoxTimer(uuid, song, timer);
 	}
 
-	private void playBoxTimer(UUID uuid, GSong song, Timer timer) {
+	private void playBoxTimer(@NotNull UUID uuid, @NotNull GSong song, @NotNull Timer timer) {
 		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 
@@ -269,12 +271,12 @@ public class JukeBoxService {
 		}, 0, 1);
 	}
 
-	public GSong getNextSong(UUID uuid) {
+	public @Nullable GSong getNextSong(@NotNull UUID uuid) {
 		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		return playState != null ? gMusicMain.getPlayService().getShuffleSong(uuid, playState.getSong()) : gMusicMain.getPlayService().getRandomSong(uuid);
 	}
 
-	public void stopBoxSong(UUID uuid) {
+	public void stopBoxSong(@NotNull UUID uuid) {
 		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		if(playState == null) return;
 
@@ -295,7 +297,7 @@ public class JukeBoxService {
 		}
 	}
 
-	public void pauseBoxSong(UUID uuid) {
+	public void pauseBoxSong(@NotNull UUID uuid) {
 		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		if(playState == null) return;
 
@@ -313,7 +315,7 @@ public class JukeBoxService {
 		}
 	}
 
-	public void resumeBoxSong(UUID uuid) {
+	public void resumeBoxSong(@NotNull UUID uuid) {
 		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		if(playState == null) return;
 

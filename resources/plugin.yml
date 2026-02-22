@@ -6,7 +6,7 @@ website: https://www.spigotmc.org/resources/84004
 main: ${main}
 api-version: 1.18
 folia-supported: true
-softdepend: [GriefPrevention, PlotSquared, WorldGuard]
+softdepend: [GriefPrevention, PlaceholderAPI, PlotSquared, WorldGuard]
 
 commands:
   gmusic:
@@ -16,7 +16,7 @@ commands:
     permission: GMusic.Music
 
   gadminmusic:
-    usage: /<command> [jukebox|disc|download|radio]
+    usage: /<command> [jukebox|disc|download|radio|play|playing|random|stop|pause|resume|skip|toggle]
     aliases: [adminmusic, gamusic, amusic, gadminsong, adminsong, gasong, asong]
     description: AMusic command
     permission: GMusic.AdminMusic

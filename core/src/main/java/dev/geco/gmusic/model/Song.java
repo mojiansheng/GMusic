@@ -34,8 +34,8 @@ public class Song {
 
 		id = config.getString("Song.Id");
 		title = config.getString("Song.Title", id);
-		originalAuthor = config.getString("Song.OriginalAuthor");
-		author = config.getString("Song.Author");
+		originalAuthor = config.getString("Song.OriginalAuthor", "");
+		author = config.getString("Song.Author", "");
 		description = config.getStringList("Song.Description");
 		String material = config.getString("Song.Material");
 		if(material != null) {

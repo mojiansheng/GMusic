@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -35,6 +37,8 @@ public class SongService {
 
     public void loadSongs() {
         unloadSongs();
+
+        convertFolder();
 
         convertSongs();
 
@@ -67,6 +71,36 @@ public class SongService {
 
     public void unloadSongs() {
         songs.clear();
+    }
+
+    private void convertFolder() {
+        File gnbsDir = new File(gMusicMain.getDataFolder(), GNBS_FOLDER);
+        if(!gnbsDir.exists() && !gnbsDir.mkdir()) return;
+
+        File songsDir = new File(gMusicMain.getDataFolder(), "songs");
+        if(songsDir.exists()) {
+            try {
+                Files.move(songsDir.toPath(), gnbsDir.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.delete(songsDir.toPath());
+            } catch(Throwable ignored) {}
+        }
+
+        File convertDir = new File(gMusicMain.getDataFolder(), CONVERT_FOLDER);
+        if(!convertDir.exists() && !convertDir.mkdir()) return;
+
+        File midiDir = new File(gMusicMain.getDataFolder(), "midi");
+        if(midiDir.exists()) {
+            try {
+                Files.move(midiDir.toPath(), convertDir.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch(Throwable ignored) {}
+        }
+
+        File nbsDir = new File(gMusicMain.getDataFolder(), "nbs");
+        if(nbsDir.exists()) {
+            try {
+                Files.move(gnbsDir.toPath(), convertDir.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch(Throwable ignored) {}
+        }
     }
 
     public void convertSongs() {

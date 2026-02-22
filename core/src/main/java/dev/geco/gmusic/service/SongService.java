@@ -1,7 +1,7 @@
 package dev.geco.gmusic.service;
 
 import dev.geco.gmusic.GMusicMain;
-import dev.geco.gmusic.object.GSong;
+import dev.geco.gmusic.model.Song;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,17 +21,17 @@ public class SongService {
     public static final String CONVERT_FOLDER = "convert";
 
     private final GMusicMain gMusicMain;
-    private final TreeMap<String, GSong> songs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final TreeMap<String, Song> songs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public SongService(GMusicMain gMusicMain) {
         this.gMusicMain = gMusicMain;
     }
 
-    public List<GSong> getSongs() { return new ArrayList<>(songs.values()); }
+    public List<Song> getSongs() { return new ArrayList<>(songs.values()); }
 
-    public @Nullable GSong getSongById(@NotNull String song) { return songs.get(song.toLowerCase()); }
+    public @Nullable Song getSongById(@NotNull String song) { return songs.get(song.toLowerCase()); }
 
-    public List<GSong> filterSongsBySearch(@NotNull List<GSong> songs, @NotNull String search) { return songs.stream().filter(song -> song.getTitle().toLowerCase().contains(search.toLowerCase())).toList(); }
+    public List<Song> filterSongsBySearch(@NotNull List<Song> songs, @NotNull String search) { return songs.stream().filter(song -> song.getTitle().toLowerCase().contains(search.toLowerCase())).toList(); }
 
     public void loadSongs() {
         unloadSongs();
@@ -51,7 +51,7 @@ public class SongService {
         if(extensionPos <= 0 || !file.getName().substring(extensionPos + 1).equalsIgnoreCase(GNBS_EXTENSION)) return false;
 
         try {
-            GSong song = new GSong(file);
+            Song song = new Song(file);
             if(song.getNoteAmount() == 0) {
                 gMusicMain.getLogger().warning("Could not load " + GNBS_EXTENSION + " music '" + file.getName().substring(0, extensionPos) + "', no notes found");
                 return false;

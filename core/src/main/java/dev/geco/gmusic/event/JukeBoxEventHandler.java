@@ -1,6 +1,6 @@
 package dev.geco.gmusic.event;
 
-import dev.geco.gmusic.object.gui.GMusicGUI;
+import dev.geco.gmusic.model.gui.MusicGUI;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -45,7 +45,7 @@ public class JukeBoxEventHandler implements Listener {
 
 		if(!gMusicMain.getEnvironmentUtil().canUseJukeboxInLocation(block.getLocation(), player)) return;
 
-		if(!player.isSneaking()) player.openInventory(GMusicGUI.getMusicGUI(uuid).getInventory());
+		if(!player.isSneaking()) player.openInventory(MusicGUI.getMusicGUI(uuid).getInventory());
 	}
 
 	@EventHandler (ignoreCancelled = true, priority = EventPriority.HIGHEST)

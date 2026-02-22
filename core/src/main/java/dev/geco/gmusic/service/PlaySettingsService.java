@@ -1,10 +1,10 @@
 package dev.geco.gmusic.service;
 
 import dev.geco.gmusic.GMusicMain;
-import dev.geco.gmusic.object.GPlaySettings;
-import dev.geco.gmusic.object.GSong;
-import dev.geco.gmusic.object.GPlayListMode;
-import dev.geco.gmusic.object.GPlayMode;
+import dev.geco.gmusic.model.PlaySettings;
+import dev.geco.gmusic.model.Song;
+import dev.geco.gmusic.model.PlayListMode;
+import dev.geco.gmusic.model.PlayMode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ import java.util.logging.Level;
 public class PlaySettingsService {
 
 	private final GMusicMain gMusicMain;
-	private final HashMap<UUID, GPlaySettings> playSettingsCache = new HashMap<>();
+	private final HashMap<UUID, PlaySettings> playSettingsCache = new HashMap<>();
 
 	public PlaySettingsService(GMusicMain gMusicMain) {
 		this.gMusicMain = gMusicMain;
@@ -32,12 +32,12 @@ public class PlaySettingsService {
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not create play settings database tables!", e); }
 	}
 
-	public @NotNull GPlaySettings getPlaySettings(@NotNull UUID uuid) {
+	public @NotNull PlaySettings getPlaySettings(@NotNull UUID uuid) {
 		if(playSettingsCache.containsKey(uuid)) return playSettingsCache.get(uuid);
 
-		List<GSong> favorites = new ArrayList<>();
+		List<Song> favorites = new ArrayList<>();
 
-		GPlaySettings playSettings = null;
+		PlaySettings playSettings = null;
 
 		try {
 			try(ResultSet playSettingsFavoritesData = gMusicMain.getDataService().executeAndGet("SELECT * FROM gmusic_play_settings_favorites WHERE uuid = ?", uuid.toString())) {
@@ -48,12 +48,12 @@ public class PlaySettingsService {
 
 			try(ResultSet playSettingsData = gMusicMain.getDataService().executeAndGet("SELECT * FROM gmusic_play_settings WHERE uuid = ?", uuid.toString())) {
 				if(playSettingsData.next()) {
-					playSettings = new GPlaySettings(
+					playSettings = new PlaySettings(
 							uuid,
-							GPlayListMode.byId(playSettingsData.getInt("playListMode")),
+							PlayListMode.byId(playSettingsData.getInt("playListMode")),
 							playSettingsData.getInt("volume"),
 							playSettingsData.getBoolean("playOnJoin"),
-							GPlayMode.byId(playSettingsData.getInt("playMode")),
+							PlayMode.byId(playSettingsData.getInt("playMode")),
 							playSettingsData.getBoolean("showParticles"),
 							playSettingsData.getBoolean("reverseMode"),
 							playSettingsData.getBoolean("toggleMode"),
@@ -73,13 +73,13 @@ public class PlaySettingsService {
 		return playSettings;
 	}
 
-	public @NotNull GPlaySettings generateDefaultPlaySettings(@NotNull UUID uuid) {
-		GPlaySettings playSettings = new GPlaySettings(
+	public @NotNull PlaySettings generateDefaultPlaySettings(@NotNull UUID uuid) {
+		PlaySettings playSettings = new PlaySettings(
 				uuid,
-				GPlayListMode.byId(gMusicMain.getConfigService().PS_D_PLAYLIST_MODE),
+				PlayListMode.byId(gMusicMain.getConfigService().PS_D_PLAYLIST_MODE),
 				gMusicMain.getConfigService().PS_D_VOLUME,
 				gMusicMain.getConfigService().R_PLAY_ON_JOIN,
-				GPlayMode.byId(gMusicMain.getConfigService().PS_D_PLAY_MODE),
+				PlayMode.byId(gMusicMain.getConfigService().PS_D_PLAY_MODE),
 				gMusicMain.getConfigService().PS_D_PARTICLES,
 				gMusicMain.getConfigService().PS_D_REVERSE,
 				false,
@@ -93,7 +93,7 @@ public class PlaySettingsService {
 		return playSettings;
 	}
 
-	public void savePlaySettings(@NotNull UUID uuid, @Nullable GPlaySettings playSettings) {
+	public void savePlaySettings(@NotNull UUID uuid, @Nullable PlaySettings playSettings) {
 		try {
 			gMusicMain.getDataService().execute("DELETE FROM gmusic_play_settings WHERE uuid = ?", uuid.toString());
 			gMusicMain.getDataService().execute("DELETE FROM gmusic_play_settings_favorites WHERE uuid = ?", uuid.toString());
@@ -120,14 +120,14 @@ public class PlaySettingsService {
 
 			if(playSettings.getFavorites().isEmpty()) return;
 
-			for(GSong favoriteSong : playSettings.getFavorites()) {
+			for(Song favoriteSong : playSettings.getFavorites()) {
 				gMusicMain.getDataService().execute("INSERT INTO gmusic_play_settings_favorites (uuid, songId) VALUES (?, ?)", uuid.toString(), favoriteSong.getId());
 			}
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not save play settings", e); }
 	}
 
 	public void savePlaySettings() {
-		for(Map.Entry<UUID, GPlaySettings> playSettings : playSettingsCache.entrySet()) {
+		for(Map.Entry<UUID, PlaySettings> playSettings : playSettingsCache.entrySet()) {
 			savePlaySettings(playSettings.getKey(), playSettings.getValue());
 		}
 

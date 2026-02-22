@@ -20,7 +20,7 @@ java {
 }
 
 tasks.compileJava {
-    options.release = 17
+    options.release = 16
 }
 
 publishing {

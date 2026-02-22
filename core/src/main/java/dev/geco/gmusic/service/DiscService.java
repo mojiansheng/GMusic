@@ -1,7 +1,7 @@
 package dev.geco.gmusic.service;
 
 import dev.geco.gmusic.GMusicMain;
-import dev.geco.gmusic.object.GSong;
+import dev.geco.gmusic.model.Song;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +23,7 @@ public class DiscService {
 
 	public @NotNull NamespacedKey getDiscKey() { return discKey; }
 
-	public @NotNull ItemStack createDiscItem(@NotNull GSong song) {
+	public @NotNull ItemStack createDiscItem(@NotNull Song song) {
 		ItemStack itemStack = new ItemStack(song.getDiscMaterial());
 		itemStack.setAmount(1);
 		ItemMeta itemMeta = itemStack.getItemMeta();

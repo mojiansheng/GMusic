@@ -1,8 +1,8 @@
 package dev.geco.gmusic.cmd;
 
 import dev.geco.gmusic.GMusicMain;
-import dev.geco.gmusic.object.GSong;
-import dev.geco.gmusic.object.gui.GMusicGUI;
+import dev.geco.gmusic.model.Song;
+import dev.geco.gmusic.model.gui.MusicGUI;
 import dev.geco.gmusic.service.SongService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -75,7 +75,7 @@ public class GAdminMusicCommand implements CommandExecutor {
                     gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-disc-use-error");
                     return true;
                 }
-                GSong song = gMusicMain.getSongService().getSongById(args[1]);
+                Song song = gMusicMain.getSongService().getSongById(args[1]);
                 if(song == null) {
                     gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-song-error", "%Song%", args[1]);
                     return true;
@@ -161,7 +161,7 @@ public class GAdminMusicCommand implements CommandExecutor {
                     gMusicMain.getMessageService().sendMessage(sender, "Messages.command-sender-error");
                     return true;
                 }
-                GMusicGUI musicGUI = GMusicGUI.getMusicGUI(gMusicMain.getRadioService().getRadioUUID());
+                MusicGUI musicGUI = MusicGUI.getMusicGUI(gMusicMain.getRadioService().getRadioUUID());
                 if(musicGUI != null) player.openInventory(musicGUI.getInventory());
             }
             default -> gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-use-error");

@@ -1,13 +1,13 @@
 package dev.geco.gmusic.service;
 
 import dev.geco.gmusic.GMusicMain;
-import dev.geco.gmusic.object.GNotePart;
-import dev.geco.gmusic.object.GPlayListMode;
-import dev.geco.gmusic.object.GPlayMode;
-import dev.geco.gmusic.object.GPlaySettings;
-import dev.geco.gmusic.object.GPlayState;
-import dev.geco.gmusic.object.GSong;
-import dev.geco.gmusic.object.gui.GMusicGUI;
+import dev.geco.gmusic.model.NotePart;
+import dev.geco.gmusic.model.PlayListMode;
+import dev.geco.gmusic.model.PlayMode;
+import dev.geco.gmusic.model.PlaySettings;
+import dev.geco.gmusic.model.PlayState;
+import dev.geco.gmusic.model.Song;
+import dev.geco.gmusic.model.gui.MusicGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -94,20 +94,20 @@ public class JukeBoxService {
 							continue;
 						}
 
-						GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
+						PlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 
 						jukeBoxBlocks.put(block, uuid);
 						jukeBoxes.put(uuid, block);
-						if(playSettings.getPlayListMode() == GPlayListMode.RADIO) gMusicMain.getRadioService().addRadioJukeBox(uuid, block);
+						if(playSettings.getPlayListMode() == PlayListMode.RADIO) gMusicMain.getRadioService().addRadioJukeBox(uuid, block);
 						else if(playSettings.isPlayOnJoin()) {
 							if(gMusicMain.getPlayService().hasPlayingSong(uuid)) resumeBoxSong(uuid);
 							else {
-								GSong song = playSettings.getCurrentSong() != null ? gMusicMain.getSongService().getSongById(playSettings.getCurrentSong()) : null;
+								Song song = playSettings.getCurrentSong() != null ? gMusicMain.getSongService().getSongById(playSettings.getCurrentSong()) : null;
 								playBoxSong(uuid, song != null ? song : gMusicMain.getPlayService().getRandomSong(uuid));
 							}
 						}
 
-						new GMusicGUI(uuid, GMusicGUI.MenuType.JUKEBOX);
+						new MusicGUI(uuid, MusicGUI.MenuType.JUKEBOX);
 					}
 				}
 			} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not load jukeboxes", e); }
@@ -124,12 +124,12 @@ public class JukeBoxService {
 					block.getY(),
 					block.getZ()
 			);
-			GPlaySettings playSettings = gMusicMain.getPlaySettingsService().generateDefaultPlaySettings(uuid);
+			PlaySettings playSettings = gMusicMain.getPlaySettingsService().generateDefaultPlaySettings(uuid);
 			playSettings.setRange(gMusicMain.getConfigService().JUKEBOX_RANGE);
-			if(playSettings.getPlayListMode() == GPlayListMode.RADIO) gMusicMain.getRadioService().addRadioJukeBox(uuid, block);
+			if(playSettings.getPlayListMode() == PlayListMode.RADIO) gMusicMain.getRadioService().addRadioJukeBox(uuid, block);
 			jukeBoxBlocks.put(block, uuid);
 			jukeBoxes.put(uuid, block);
-			new GMusicGUI(uuid, GMusicGUI.MenuType.JUKEBOX);
+			new MusicGUI(uuid, MusicGUI.MenuType.JUKEBOX);
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not set jukebox", e); }
 	}
 
@@ -138,7 +138,7 @@ public class JukeBoxService {
 		if(uuid == null) return;
 		stopBoxSong(uuid);
 		gMusicMain.getPlaySettingsService().savePlaySettings(uuid, null);
-		GMusicGUI.getMusicGUI(uuid).close(true);
+		MusicGUI.getMusicGUI(uuid).close(true);
 		gMusicMain.getRadioService().removeRadioJukeBox(uuid);
 		jukeBoxBlocks.remove(block);
 		jukeBoxes.remove(uuid);
@@ -152,25 +152,25 @@ public class JukeBoxService {
 		try {
 			for(Player player : location.getWorld().getPlayers()) {
 				double distance = location.distance(player.getLocation());
-				GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(player.getUniqueId());
+				PlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(player.getUniqueId());
 				if(playSettings != null && distance <= range && !playSettings.isToggleMode()) playerRangeMap.put(player, distance);
 			}
 		} catch(Throwable ignored) { }
 		return playerRangeMap;
 	}
 
-	public void playBoxSong(@NotNull UUID uuid, @Nullable GSong song) { playBoxSong(uuid, song, 0); }
+	public void playBoxSong(@NotNull UUID uuid, @Nullable Song song) { playBoxSong(uuid, song, 0); }
 
-	private void playBoxSong(@NotNull UUID uuid, @Nullable GSong song, long delay) {
+	private void playBoxSong(@NotNull UUID uuid, @Nullable Song song, long delay) {
 		if(song == null) return;
 
-		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
+		PlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 
-		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
+		PlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		if(playState != null) playState.getTimer().cancel();
 
 		Timer timer = new Timer();
-		playState = new GPlayState(song, timer, playSettings.isReverseMode() ? song.getLength() + delay : -delay);
+		playState = new PlayState(song, timer, playSettings.isReverseMode() ? song.getLength() + delay : -delay);
 		gMusicMain.getPlayService().setPlayState(uuid, playState);
 
 		playSettings.setCurrentSong(song.getId());
@@ -194,9 +194,9 @@ public class JukeBoxService {
 		playBoxTimer(uuid, song, timer);
 	}
 
-	private void playBoxTimer(@NotNull UUID uuid, @NotNull GSong song, @NotNull Timer timer) {
-		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
-		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
+	private void playBoxTimer(@NotNull UUID uuid, @NotNull Song song, @NotNull Timer timer) {
+		PlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
+		PlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 
 		Block block = jukeBoxes.get(uuid);
 		if(block == null) return;
@@ -211,7 +211,7 @@ public class JukeBoxService {
 
 				long position = playState.getTickPosition();
 
-				List<GNotePart> noteParts = song.getContent().get(position);
+				List<NotePart> noteParts = song.getContent().get(position);
 
 				HashMap<Player, Double> playersInRange = getPlayersInRange(boxLocation, playSettings.getRange());
 
@@ -221,7 +221,7 @@ public class JukeBoxService {
 						for(Player player : playersInRange.keySet()) player.spawnParticle(Particle.NOTE, particleLocation, 0, random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);
 					}
 
-					for(GNotePart notePart : noteParts) {
+					for(NotePart notePart : noteParts) {
 						for(Player player : playersInRange.keySet()) {
 							if(notePart.getSound() != null) {
 								float volume = (float) ((playersInRange.get(player) - playSettings.getRange()) * playSettings.getFixedVolume() / (double) -playSettings.getRange()) * notePart.getVolume();
@@ -239,16 +239,16 @@ public class JukeBoxService {
 				}
 
 				if(position == (playSettings.isReverseMode() ? 0 : song.getLength())) {
-					if(playSettings.getPlayMode() == GPlayMode.LOOP && playSettings.getPlayListMode() != GPlayListMode.RADIO) {
+					if(playSettings.getPlayMode() == PlayMode.LOOP && playSettings.getPlayListMode() != PlayListMode.RADIO) {
 						position = playSettings.isReverseMode() ? song.getLength() + gMusicMain.getConfigService().PS_TIME_UNTIL_REPEAT : -gMusicMain.getConfigService().PS_TIME_UNTIL_REPEAT;
 						playState.setTickPosition(position);
 					} else {
 						timer.cancel();
 
-						if(playSettings.getPlayMode() == GPlayMode.SHUFFLE && playSettings.getPlayListMode() != GPlayListMode.RADIO) playBoxSong(uuid, gMusicMain.getPlayService().getShuffleSong(uuid, song), gMusicMain.getConfigService().PS_TIME_UNTIL_SHUFFLE);
+						if(playSettings.getPlayMode() == PlayMode.SHUFFLE && playSettings.getPlayListMode() != PlayListMode.RADIO) playBoxSong(uuid, gMusicMain.getPlayService().getShuffleSong(uuid, song), gMusicMain.getConfigService().PS_TIME_UNTIL_SHUFFLE);
 						else {
 							gMusicMain.getPlayService().removePlayState(uuid);
-							GMusicGUI m = GMusicGUI.getMusicGUI(uuid);
+							MusicGUI m = MusicGUI.getMusicGUI(uuid);
 							if(m != null) m.setPauseResumeBar();
 						}
 					}
@@ -271,20 +271,20 @@ public class JukeBoxService {
 		}, 0, 1);
 	}
 
-	public @Nullable GSong getNextSong(@NotNull UUID uuid) {
-		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
+	public @Nullable Song getNextSong(@NotNull UUID uuid) {
+		PlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		return playState != null ? gMusicMain.getPlayService().getShuffleSong(uuid, playState.getSong()) : gMusicMain.getPlayService().getRandomSong(uuid);
 	}
 
 	public void stopBoxSong(@NotNull UUID uuid) {
-		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
+		PlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		if(playState == null) return;
 
 		playState.getTimer().cancel();
 
 		gMusicMain.getPlayService().removePlayState(uuid);
 
-		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
+		PlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 		playSettings.setCurrentSong(null);
 
 		if(gMusicMain.getConfigService().A_SHOW_MESSAGES) {
@@ -298,13 +298,13 @@ public class JukeBoxService {
 	}
 
 	public void pauseBoxSong(@NotNull UUID uuid) {
-		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
+		PlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		if(playState == null) return;
 
 		playState.getTimer().cancel();
 		playState.setPaused(true);
 
-		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
+		PlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 		if(gMusicMain.getConfigService().A_SHOW_MESSAGES && playSettings != null) {
 			Block block = jukeBoxes.get(uuid);
 			if(block != null) {
@@ -316,13 +316,13 @@ public class JukeBoxService {
 	}
 
 	public void resumeBoxSong(@NotNull UUID uuid) {
-		GPlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
+		PlayState playState = gMusicMain.getPlayService().getPlayState(uuid);
 		if(playState == null) return;
 
 		playState.setTimer(new Timer());
 		playState.setPaused(false);
 
-		GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
+		PlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(uuid);
 		if(gMusicMain.getConfigService().A_SHOW_MESSAGES && playSettings != null) {
 			Block block = jukeBoxes.get(uuid);
 			if(block != null) {

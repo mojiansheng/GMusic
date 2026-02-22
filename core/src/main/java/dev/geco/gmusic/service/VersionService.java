@@ -34,10 +34,10 @@ public class VersionService {
         serverVersion = getMinecraftVersion();
         serverVersionParts = Arrays.stream(serverVersion.split("\\.")).mapToInt(Integer::parseInt).toArray();
         packagePath = gMusicMain.getClass().getPackage().getName() + ".mcv." + getPackageVersion();
-        available = hasPackageClass("object.gui.GMusicInputGUI");
+        available = hasPackageClass("model.gui.MusicInputGUI");
         if(available) return;
         packagePath = gMusicMain.getClass().getPackage().getName() + ".mcv." + LATEST_VERSION;
-        available = hasPackageClass("object.gui.GMusicInputGUI");
+        available = hasPackageClass("model.gui.MusicInputGUI");
     }
 
     private String getMinecraftVersion() {

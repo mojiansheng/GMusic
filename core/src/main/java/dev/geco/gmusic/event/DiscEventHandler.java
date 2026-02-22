@@ -1,9 +1,9 @@
 package dev.geco.gmusic.event;
 
 import dev.geco.gmusic.GMusicMain;
-import dev.geco.gmusic.object.GPlayMode;
-import dev.geco.gmusic.object.GPlaySettings;
-import dev.geco.gmusic.object.GSong;
+import dev.geco.gmusic.model.PlayMode;
+import dev.geco.gmusic.model.PlaySettings;
+import dev.geco.gmusic.model.Song;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -60,15 +60,15 @@ public class DiscEventHandler implements Listener {
 
 			if(!gMusicMain.getEnvironmentUtil().isEntityInAllowedWorld(player)) return;
 
-			GSong song = gMusicMain.getSongService().getSongById(songId);
+			Song song = gMusicMain.getSongService().getSongById(songId);
 			if(song == null) return;
 
 			if(player.getGameMode() != GameMode.CREATIVE) item.setAmount(item.getAmount() - 1);
 
 			UUID uuid = UUID.randomUUID();
-			GPlaySettings playSettings = gMusicMain.getPlaySettingsService().generateDefaultPlaySettings(uuid);
+			PlaySettings playSettings = gMusicMain.getPlaySettingsService().generateDefaultPlaySettings(uuid);
 			playSettings.setRange(gMusicMain.getConfigService().JUKEBOX_RANGE);
-			playSettings.setPlayMode(GPlayMode.DEFAULT);
+			playSettings.setPlayMode(PlayMode.DEFAULT);
 			playSettings.setShowParticles(true);
 
 			gMusicMain.getJukeBoxService().addTemporaryJukeBoxBlock(uuid, block);
@@ -128,7 +128,7 @@ public class DiscEventHandler implements Listener {
 		jukebox.setRecord(null);
 		jukebox.update(false, false);
 
-		GSong song = gMusicMain.getSongService().getSongById(songId);
+		Song song = gMusicMain.getSongService().getSongById(songId);
 		if(song == null) return;
 
 		Location dropLocation = jukebox.getLocation().add(0.5, 1.01, 0.5);

@@ -1,7 +1,7 @@
 package dev.geco.gmusic.cmd.tab;
 
 import dev.geco.gmusic.GMusicMain;
-import dev.geco.gmusic.object.GSong;
+import dev.geco.gmusic.model.Song;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -42,7 +42,7 @@ public class GMusicTabComplete implements TabCompleter {
         } else if(args.length == 2) {
             if(gMusicMain.getPermissionService().hasPermission(sender, "Music")) {
                 if(args[0].equalsIgnoreCase("play")) {
-                    for(GSong song : gMusicMain.getSongService().getSongs()) complete.add(song.getId());
+                    for(Song song : gMusicMain.getSongService().getSongs()) complete.add(song.getId());
                 }
             }
             if(!args[args.length - 1].isEmpty()) {

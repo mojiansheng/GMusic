@@ -1,7 +1,7 @@
 package dev.geco.gmusic.cmd.tab;
 
 import dev.geco.gmusic.GMusicMain;
-import dev.geco.gmusic.object.GSong;
+import dev.geco.gmusic.model.Song;
 import dev.geco.gmusic.service.SongService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -42,7 +42,7 @@ public class GAdminMusicTabComplete implements TabCompleter {
                 if(args[0].equalsIgnoreCase("jukebox")) {
                     for(Player player : Bukkit.getOnlinePlayers()) complete.add(player.getName());
                 } else if(args[0].equalsIgnoreCase("disc")) {
-                    for(GSong song : gMusicMain.getSongService().getSongs()) complete.add(song.getId());
+                    for(Song song : gMusicMain.getSongService().getSongs()) complete.add(song.getId());
                 } else if(args[0].equalsIgnoreCase("download")) {
                     complete.add(SongService.GNBS_EXTENSION);
                     complete.add(SongService.NBS_EXTENSION);

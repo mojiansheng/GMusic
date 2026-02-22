@@ -232,7 +232,7 @@ public class GMusicMain extends JavaPlugin {
     }
 
     private boolean versionCheck() {
-        if(versionService.isNewerOrVersion(1, 18) && versionService.isAvailable()) return true;
+        if(versionService.isNewerOrVersion(1, 13)) return true;
         messageService.sendMessage(Bukkit.getConsoleSender(), "Plugin.plugin-version", "%Version%", Bukkit.getServer().getVersion());
         updateService.checkForUpdates();
         Bukkit.getPluginManager().disablePlugin(this);

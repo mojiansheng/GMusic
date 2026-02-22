@@ -1,9 +1,9 @@
 package dev.geco.gmusic.cmd;
 
 import dev.geco.gmusic.GMusicMain;
-import dev.geco.gmusic.object.gui.GMusicGUI;
-import dev.geco.gmusic.object.GPlaySettings;
-import dev.geco.gmusic.object.GSong;
+import dev.geco.gmusic.model.gui.MusicGUI;
+import dev.geco.gmusic.model.PlaySettings;
+import dev.geco.gmusic.model.Song;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,7 +36,7 @@ public class GMusicCommand implements CommandExecutor {
         }
 
         if(args.length == 0) {
-            GMusicGUI musicGUI = new GMusicGUI(player.getUniqueId(), GMusicGUI.MenuType.DEFAULT);
+            MusicGUI musicGUI = new MusicGUI(player.getUniqueId(), MusicGUI.MenuType.DEFAULT);
             player.openInventory(musicGUI.getInventory());
             return true;
         }
@@ -47,7 +47,7 @@ public class GMusicCommand implements CommandExecutor {
                     gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-use-error");
                     return true;
                 }
-                GSong song = gMusicMain.getSongService().getSongById(args[1]);
+                Song song = gMusicMain.getSongService().getSongById(args[1]);
                 if(song == null) {
                     gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-song-error", "%Song%", args[1]);
                     return true;
@@ -60,11 +60,11 @@ public class GMusicCommand implements CommandExecutor {
                     gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-playing-error");
                     return true;
                 }
-                GSong song = gMusicMain.getPlayService().getPlayingSong(player.getUniqueId());
+                Song song = gMusicMain.getPlayService().getPlayingSong(player.getUniqueId());
                 gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-playing", "%Song%", song.getId(), "%SongTitle%", song.getTitle());
             }
             case "random" -> {
-                GSong song = gMusicMain.getPlayService().getRandomSong(player.getUniqueId());
+                Song song = gMusicMain.getPlayService().getRandomSong(player.getUniqueId());
                 if(song == null) {
                     gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-no-song-error");
                     return true;
@@ -97,7 +97,7 @@ public class GMusicCommand implements CommandExecutor {
                 gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-resume");
             }
             case "skip" -> {
-                GSong song = gMusicMain.getPlayService().getNextSong(player);
+                Song song = gMusicMain.getPlayService().getNextSong(player);
                 if(song == null) {
                     gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-no-song-error");
                     return true;
@@ -106,7 +106,7 @@ public class GMusicCommand implements CommandExecutor {
                 gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-play", "%Song%", song.getId(), "%SongTitle%", song.getTitle());
             }
             case "toggle" -> {
-                GPlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(player.getUniqueId());
+                PlaySettings playSettings = gMusicMain.getPlaySettingsService().getPlaySettings(player.getUniqueId());
                 playSettings.setToggleMode(!playSettings.isToggleMode());
             }
             default -> gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gmusic-use-error");

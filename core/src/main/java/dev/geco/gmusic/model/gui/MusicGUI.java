@@ -27,6 +27,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import dev.geco.gmusic.GMusicMain;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class MusicGUI {
 	private String searchKey = null;
 	private final PlaySettings playSettings;
 
-	public MusicGUI(UUID uuid, MenuType type) {
+	public MusicGUI(@NotNull UUID uuid, @NotNull MenuType type) {
 		this.uuid = uuid;
 		this.type = type;
 
@@ -320,7 +321,7 @@ public class MusicGUI {
 		Bukkit.getPluginManager().registerEvents(listener, gMusicMain);
 	}
 
-	public static MusicGUI getMusicGUI(UUID uuid) { return musicGUIS.get(uuid); }
+	public static @Nullable MusicGUI getMusicGUI(@NotNull UUID uuid) { return musicGUIS.get(uuid); }
 
 	public void close(boolean force) {
 		if(force) for(HumanEntity entity : new ArrayList<>(inventory.getViewers())) entity.closeInventory();
@@ -329,9 +330,9 @@ public class MusicGUI {
 		HandlerList.unregisterAll(listener);
 	}
 
-	private MusicInputGUI getInputGUIInstance(MusicInputGUI.InputCallback call, MusicInputGUI.ValidateCallback validateCall) {
+	private @Nullable MusicInputGUI getInputGUIInstance(@NotNull MusicInputGUI.InputCallback call, @NotNull MusicInputGUI.ValidateCallback validateCall) {
 		try {
-			Class<?> inputGUIClass = Class.forName(gMusicMain.getVersionService().getPackagePath() + ".object.gui.GMusicInputGUI");
+			Class<?> inputGUIClass = Class.forName(gMusicMain.getVersionService().getPackagePath() + ".model.gui.MusicInputGUI");
 			return (MusicInputGUI) inputGUIClass.getConstructor(MusicInputGUI.InputCallback.class, MusicInputGUI.ValidateCallback.class).newInstance(call, validateCall);
 		} catch(Throwable e) { gMusicMain.getLogger().log(Level.SEVERE, "Could not get input gui instance", e); }
 		return null;
@@ -542,13 +543,13 @@ public class MusicGUI {
 
 	private int getMaxPageSize(int songCount) { return (songCount / 45) + (songCount % 45 == 0 ? 0 : 1); }
 
-	public UUID getOwner() { return uuid; }
+	public @NotNull UUID getOwner() { return uuid; }
 
-	public MenuType getMenuType() { return type; }
+	public @NotNull MenuType getMenuType() { return type; }
 
-	public PlaySettings getPlaySettings() { return playSettings; }
+	public @NotNull PlaySettings getPlaySettings() { return playSettings; }
 
-	public Inventory getInventory() { return inventory; }
+	public @NotNull Inventory getInventory() { return inventory; }
 
 	public enum MenuType {
 

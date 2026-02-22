@@ -44,6 +44,7 @@ Messages:
   command-gadminmusic-edit-category-error: "[P]&6 %Category%&c ist keine valide Kategorie!"
   command-gadminmusic-edit-option-error: "[P]&c %Option%&c ist keine valide Option!"
   command-gadminmusic-edit-error: "[P]&c Song konnte nicht editiert werden!"
+  command-gadminmusic-edit: "[P]&6 %Song%&a erfolgreich editiert."
   command-gadminmusic-play-use-error: "[P]&c /adminmusic play <Spieler> <Song>"
   command-gadminmusic-playing-use-error: "[P]&c /adminmusic playing <Spieler>"
   command-gadminmusic-random-use-error: "[P]&c /adminmusic random <Spieler>"

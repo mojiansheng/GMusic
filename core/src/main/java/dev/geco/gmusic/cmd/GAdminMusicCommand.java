@@ -202,51 +202,59 @@ public class GAdminMusicCommand implements CommandExecutor {
                                 gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit-id-error", "%Song%", args[3]);
                                 return true;
                             }
-                            File file = new File(song.getFileName());
+                            File file = new File(gMusicMain.getDataFolder(), SongService.GNBS_FOLDER + "/" + song.getFileName());
                             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
                             config.set("Song.Id", args[3]);
                             config.save(file);
                             gMusicMain.getSongService().loadSongs();
                         } catch(Throwable e) {
                             gMusicMain.getLogger().log(Level.SEVERE, "Error saving song", e);
+                            gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit-error");
+                            return true;
                         }
                     }
                     case "title" -> {
                         try {
-                            File file = new File(song.getFileName());
+                            File file = new File(gMusicMain.getDataFolder(), SongService.GNBS_FOLDER + "/" + song.getFileName());
                             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
                             config.set("Song.Title", args[3]);
                             config.save(file);
                             gMusicMain.getSongService().loadSongs();
                         } catch(Throwable e) {
                             gMusicMain.getLogger().log(Level.SEVERE, "Error saving song", e);
+                            gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit-error");
+                            return true;
                         }
                     }
                     case "original_author" -> {
                         try {
-                            File file = new File(song.getFileName());
+                            File file = new File(gMusicMain.getDataFolder(), SongService.GNBS_FOLDER + "/" + song.getFileName());
                             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
                             config.set("Song.OriginalAuthor", args[3]);
                             config.save(file);
                             gMusicMain.getSongService().loadSongs();
                         } catch(Throwable e) {
                             gMusicMain.getLogger().log(Level.SEVERE, "Error saving song", e);
+                            gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit-error");
+                            return true;
                         }
                     }
                     case "author" -> {
                         try {
-                            File file = new File(song.getFileName());
+                            File file = new File(gMusicMain.getDataFolder(), SongService.GNBS_FOLDER + "/" + song.getFileName());
                             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
                             config.set("Song.Author", args[3]);
                             config.save(file);
                             gMusicMain.getSongService().loadSongs();
                         } catch(Throwable e) {
                             gMusicMain.getLogger().log(Level.SEVERE, "Error saving song", e);
+                            gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit-error");
+                            return true;
                         }
                     }
                     case "description" -> {
                         try {
-                            File file = new File(song.getFileName());
+                            File file = new File(gMusicMain.getDataFolder(), SongService.GNBS_FOLDER + "/" + song.getFileName());
                             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
                             List<String> description = new ArrayList<>();
                             description.add(args[3]);
@@ -255,28 +263,35 @@ public class GAdminMusicCommand implements CommandExecutor {
                             gMusicMain.getSongService().loadSongs();
                         } catch(Throwable e) {
                             gMusicMain.getLogger().log(Level.SEVERE, "Error saving song", e);
+                            gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit-error");
+                            return true;
                         }
                     }
                     case "category" -> {
                         try {
                             SoundCategory category = SoundCategory.valueOf(args[3].toUpperCase());
                             try {
-                                File file = new File(song.getFileName());
+                                File file = new File(gMusicMain.getDataFolder(), SongService.GNBS_FOLDER + "/" + song.getFileName());
                                 YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
                                 config.set("Song.Category", category.name().toUpperCase());
                                 config.save(file);
                                 gMusicMain.getSongService().loadSongs();
                             } catch(Throwable e) {
                                 gMusicMain.getLogger().log(Level.SEVERE, "Error saving song", e);
+                                gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit-error");
+                                return true;
                             }
                         } catch(Throwable e) {
                             gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit-category-error", "%Category%", args[3]);
+                            return true;
                         }
                     }
                     default -> {
                         gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit-option-error", "%Option%", args[2]);
+                        return true;
                     }
                 }
+                gMusicMain.getMessageService().sendMessage(sender, "Messages.command-gadminmusic-edit", "%Song%", song.getId());
             }
             case "play" -> {
                 if(!gMusicMain.getPermissionService().hasPermission(sender, "AdminMusic.Play", "AdminMusic.*")) {
